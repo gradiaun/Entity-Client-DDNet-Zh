@@ -2,6 +2,7 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 
 #include "localization.h"
+#include "localization_entity_zh.h"
 
 #include <base/io.h>
 #include <base/log.h>
@@ -241,6 +242,20 @@ bool CLocalizationDatabase::Load(const char *pFilename, IStorage *pStorage, ICon
 		pReplacement += 3;
 		AddString(aOrigin, pReplacement, aContext);
 	}
+
+	// Inject built-in Entity-Client Chinese translations if loading Chinese language
+	if(str_find(pFilename, "simplified_chinese") != nullptr || str_find(pFilename, "chinese") != nullptr)
+	{
+		std::sort(m_vStrings.begin(), m_vStrings.end());
+		for(const auto &Entry : s_aEntityTranslationsZh)
+		{
+			if(!FindString(str_quickhash(Entry.m_pOrg), str_quickhash("")))
+			{
+				AddString(Entry.m_pOrg, Entry.m_pZh, "");
+			}
+		}
+	}
+
 	std::sort(m_vStrings.begin(), m_vStrings.end());
 	return true;
 }
