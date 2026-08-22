@@ -58,6 +58,8 @@ class CEClient : public CComponent
 
 	static void ConSpectateId(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConToggleGoresMode(IConsole::IResult *pResult, void *pUserData);
+
 	static void ConViewLink(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConSetDeathCounter(IConsole::IResult *pResult, void *pUserData);

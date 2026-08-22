@@ -4,191 +4,167 @@
 
 ![gui_logo](https://github.com/user-attachments/assets/76f93b08-3efa-40a8-96b9-b64b17c14b3f)
 
-# Entity-Client-DDNet (Chinese Localization & Extended Fork)
+# Entity-Client-DDNet (Personal Custom Fork)
 
-This project is a customized, feature-rich DDNet (DDRaceNetwork) client fork with extended features and full Chinese localization support (with built-in fallback translations).
+This project is a personal custom fork based on the [Entity-Client (E-Client)](https://github.com/qxdFox/Entity-Client-DDNet) modification for [DDNet](https://github.com/ddnet/ddnet) (DDRaceNetwork), tailored specifically for personal racing and daily gameplay needs.
 
-### Key Features
-- **Full Chinese Localization**: Built-in Chinese fallback dictionary, no extra language configuration needed.
-- **Scrollable Chat & Direct Copy**: Select and copy text directly from the chat log.
-- **Process Priority Management**: Set DDNet process priority to high and reduce Discord's priority to mitigate stream lag.
-- **Moving Tiles in Entities**: Support rendering moving tiles in entity mode.
-- **Extensive UI & Visual Tweaks**: Warlist, Status Bar, Bindwheel, Player Actions, Rainbow effects, and more.
-- **Embedded ChaiScript Engine**: Easy scripting for client automation and state querying.
+While retaining all the powerful capabilities of the original Entity-Client, this fork adds comprehensive Chinese localization with zero-configuration fallback, Gores mode quality-of-life toggles, team-only spectator filtering, and various usability enhancements.
 
 ---
 
-### Scripting (ChaiScript)
+## 📥 Downloads
 
-Entity Client supports the [ChaiScript](https://chaiscript.com/) language for simple custom tasks.
+Pre-built binaries generated via **GitHub Actions** are available directly:
 
-Add scripts to your config dir then run them with `chai [scriptname] [args]`
+1. Navigate to the repository's [Actions tab](../../actions).
+2. Click the latest **Build** workflow run.
+3. Download `DDNet-*-win64.zip` from the **Artifacts** section at the bottom.
+4. Extract and run `DDNet.exe`.
 
-> [!CAUTION]
-> There are no runtime restrictions, you can easily `while (true) {}` yourself or run out of memory, be careful!
+---
+
+## ✨ Custom Features in this Fork
+
+The following features were independently implemented and customized in this fork:
+
+### 1. 🇨🇳 Complete Chinese Localization with Zero-Config Fallback
+* **Built-in Fallback Dictionary**: Over 280+ Entity-Client specific UI strings are embedded directly in the source code. The settings interface will **automatically display in Chinese** out of the box whenever the client language is set to Simplified Chinese.
+* **Underlying Fixes**: Fixed the `EcLocalize` interface and wrapped dozens of previously hardcoded English strings.
+* **Hot-Reloadable**: Retains support for updating translations via `data/languages/simplified_chinese.txt` without recompilation.
+
+### 2. ⚡ Gores Mode Toggle & Keybinding (`toggle_gores_mode`)
+* **Problem Solved**: When automated Gores hammer-switching is enabled, firing pistols to ping/alert teammates was impossible because every shot became a hammer swing.
+* **Console Command**: Added `toggle_gores_mode` with on-screen chat feedback (`Gores Mode: Enabled / Disabled`).
+* **Settings Integration**: Added a dedicated keybinding slot in **Settings -> Controls -> Weapon** (`Toggle Gores mode`).
+* **Bindwheel Support**: Easily add it to your radial menu: `add_bindwheel "Gores Mode" "toggle_gores_mode"`.
+
+### 3. 👁️ Team-Only Spectator / Pause Filter (`ec_spec_team_only`)
+* **Problem Solved**: When using `/pause`, `/spec`, or `smartspec.chai` to inspect teammate positions and map routes, other players and their projectiles across the map cluttered the screen.
+* **Clean Team Vision**: When enabled, the client **automatically hides all players from other teams** (including Tee bodies, nameplates, hooks, lasers, projectiles, and freeze bars) in both **Freeview** and **Follow/Spectate** modes.
+* **Configuration**:
+  * In GUI: **Entity Settings -> General -> Menu Settings -> `Only Show Team Members in Spectator Mode`**.
+  * Console variable: `ec_spec_team_only 1` (default `0`).
+
+---
+
+## 🛠️ Original Entity-Client (E-Client) Core Features
+
+The following core features are inherited from the original Entity-Client:
+
+### 1. Radial Bindwheel
+Hold a key to open a visual radial menu and execute bound commands via mouse direction.
+* `+bindwheel`: Open radial bindwheel (bind in Controls settings, e.g. `bind x +bindwheel`).
+* `add_bindwheel "<Name>" "<Command>"`: Add a bind entry.
+* `remove_bindwheel "<Name>" "<Command>"`: Remove an entry.
+* `delete_all_bindwheel_binds`: Clear all wheel binds.
+
+#### 💡 Example Binds (run in console via F1):
+```text
+# Join / leave teams
+add_bindwheel "Team 1" "team 1"
+add_bindwheel "Team 2" "team 2"
+add_bindwheel "Team 3" "team 3"
+add_bindwheel "Leave Team" "team 0"
+
+# Quick suicide / restart
+add_bindwheel "Kill" "kill"
+
+# Toggle dummy control
+add_bindwheel "Toggle Dummy" "toggle cl_dummy 0 1"
+
+# Chat commands
+add_bindwheel "Top 5" "say /top5"
+add_bindwheel "Rank" "say /rank"
+add_bindwheel "Pause" "say /pause"
+
+# Feature toggles
+add_bindwheel "Toggle Rainbow" "toggle ec_server_rainbow 0 1"
+add_bindwheel "Toggle Gores" "toggle_gores_mode"
+```
+
+---
+
+### 2. Gores Mode Automation & Anti-Ping
+* `ec_gores_mode 1`: Automatically holds gun and performs instantaneous hammer swings upon firing.
+* `ec_gores_mode_disable_weapons 1`: Automatically pauses Gores hammer switching when holding laser, grenade, or shotgun.
+* `ec_gores_mode_auto_enable 1`: Auto-enables when connected to a "Gores" gametype server.
+* `ec_antiping_negative_buffer 1`: Negative buffer prediction algorithm for smoother anti-ping handling during saves and hammer fly.
+
+---
+
+### 3. Player Actions Menu
+Hold a key to trigger actions targeting the player under your cursor.
+* Dynamic placeholders: `%s` (Player name), `%d` (Client ID).
+
+---
+
+### 4. Warlist & Player Tracking
+* `onlineinfo`: Summary of tracked and AFK players on current server.
+* `playerinfo "<Name>"`: Query player clan, skin, custom colors, and auth level.
+* `addtempwar` / `deltempwar` / `addtempmute` / `deltempmute`: Temporary war/mute list controls.
+
+---
+
+### 5. Skin Profiles & Visual Enhancements
+* `saveskin` / `restoreskin`: Snapshot and restore player / dummy skin, name, clan, flag, and colors.
+* Server-Side Rainbow: `server_rainbow_body`, `server_rainbow_feet`, `server_rainbow_speed`, etc.
+* Visual tweaks: White feet, frozen katana, tee trails, map overview, frozen tee status bar (`ec_frozen_tees_hud`).
+
+---
+
+### 6. Chat & Usability
+* **Selectable Chat**: Select and copy text directly from chat history with smooth scrolling.
+* `reply_last <?Message>`: Fast reply to the last player who pinged or whispered you.
+* `calc "<expression>"`: In-client mathematical expression evaluator.
+* Chat Bubbles: Floating speech bubbles over player heads.
+
+---
+
+### 7. Performance & Competitive Helpers
+* `ec_fast_input 1`: Reduced visual input delay mode.
+* `ec_high_process_priority 1`: Run DDNet process at high OS priority.
+* `ec_freeze_kill 1`: Smart freeze kill helper.
+* `ec_anti_spawn_block 1`: Prevent spawn blocking.
+
+---
+
+## 📜 ChaiScript Scripting Engine
+
+Entity-Client embeds the [ChaiScript](https://chaiscript.com/) engine. Place `.chai` scripts in your config directory and run them via `chai [scriptname] [args]`.
 
 <details>
-<summary>ChaiScript Capabilities & API</summary>
+<summary><b>Click to view ChaiScript Syntax & Available States</b></summary>
 
 ```js
-var a // Declare a variable
-a = 1 // Set it
-var b = 2 // Do both at once
+var a = 1
+var b = 2
 var c = "strings"
-var d = ["lists", 2] // not strongly typed
-// var e, f = d // no list deconstruction
-print(d[0] + to_string(d[1])) // explicit to_string required for string concat
-var bass = "ba" + "s" + "s"
-var ass = bass.substr(1, -1) // both indices required, use -1 for end
-if (a == b) { // brackets required
-	print("this will never happen") // output
-} else if (c == "strings") { // string comparison
-	exec("echo hello world") // run console stuff
+print("hello " + to_string(a)) // explicit to_string required for concatenation
+if (c == "strings") {
+    exec("echo hello world") // run console command
 }
-var current_game_mode = state("game_mode") // Get the current game mode, all states you can get are listed below
-def myfunc(a, b, c) { // function definition
-	print(a, b, c)
-	if (a == b) { return "early" }
-	c // last statement returns
-}
-print(myfunc(1, 2, 3)) // prints "early"
-for (var i = 0; i < 10; i = i+1) { // for loops (c style)
-	print(i) // auto converts to string, will throw if it cant
-}
-return "top level return"
+var current_mode = state("game_mode") // query game state
 ```
 
-#### Available States (`state(...)`)
+### Common `state(...)` Query Functions
 
-| Return type | Call | Description |
-| --- | -- | --- |
-| `string` | `to_lower(<string>)` | Converts the input string to lowercase. |
-| `string` | `to_upper(<string>)` | Converts the input string to uppercase. |
-| `int` | `state("client_id")` | Returns the current client ID. |
-| `int` | `state("dummy_id")` | Returns the dummy client ID if connected. |
-| `string` | `state("game_mode")` | Current game mode name ('DM', 'TDM', 'CTF', etc.). |
-| `bool` | `state("game_mode_pvp")` | Whether the current mode is PvP. |
-| `bool` | `state("game_mode_race")` | Whether the current mode is a race mode. |
-| `bool` | `state("eye_wheel_allowed")` | Whether 'eye wheel' is allowed on this server. |
-| `bool` | `state("zoom_allowed")` | Whether camera zoom is allowed. |
-| `bool` | `state("dummy_allowed")` | Whether using a dummy client is allowed. |
-| `bool` | `state("dummy_connected")` | Whether dummy client is currently connected. |
-| `bool` | `state("rcon_authed")` | Whether authenticated with RCON. |
-| `int` | `state("team")` | Current team number. |
-| `int` | `state("ddnet_team")` | Current DDNet team number. |
-| `string` | `state("map")` | Name of the current/connecting map. |
-| `string` | `state("server_ip")` | IP address of current server. |
-| `int` | `state("players_connected")` | Number of connected players. |
-| `int` | `state("players_cap")` | Max players server supports. |
-| `string` | `state("server_name")` | Server's name. |
-| `string` | `state("community")` | Community identifier. |
-| `string` | `state("location")` | Approximate map location ('NW', 'C', 'SE', etc.). |
-| `string` | `state("state")` | Connection state ('online', 'offline', 'loading', 'demo'). |
-| `int` | `state("id", string Name)` | Finds client ID by player name. |
-| `string` | `state("name", int Id)` | Player name for given client ID. |
-| `string` | `state("clan", int Id)` | Clan name for given client ID. |
-| `string` | `state("player_name")` | Value of `player_name` config. |
-| `string` | `state("dummy_name")` | Value of `dummy_name` config. |
-| `bool` | `client_info("exists", int Id)` | Whether client ID exists. |
-| `int` | `client_info("team", int Id)` | Team of ID. |
-| `int` | `client_info("ddnet_team", int Id)` | DDRace team of ID. |
-| `string` | `client_info("name", int Id)` | Name of ID. |
-| `string` | `client_info("clan", int Id)` | Clan of ID. |
-| `string` | `client_info("skin_name", int Id)` | Skin name of ID. |
-| `int` | `client_info("skin_custom_color", int Id)` | Custom color flag. |
-| `int` | `client_info("skin_color_feet", int Id)` | Feet color of ID. |
-| `int` | `client_info("skin_color_body", int Id)` | Body color of ID. |
-| `bool` | `client_info("afk", int Id)` | Whether ID is AFK. |
-| `bool` | `client_info("friend", int Id)` | Whether ID is friend. |
-| `bool` | `client_info("foe", int Id)` | Whether ID is foe. |
-| `int` | `client_info("warlist_type", int Id)` | Warlist type if has entry. |
-| `string` | `client_info("warlist_type_name", int Id)` | Warlist type name. |
-| `bool` | `client_info("muted", int Id)` | Whether ID is muted. |
-| `int` | `client_info("auth_level", int Id)` | Auth level of ID. |
-
-```js
-var what = include("thatscript.chai") // include other scripts (relative to config dir)
-print(what)
-if (!file_exists("file")) {
-	throw("file missing")
-}
-```
-
-#### Modules: `math` & `re`
-
-```js
-import("math")
-math.pi
-math.min(1, 10)
-math.random(1, 100)
-
-import("re")
-if(re.test(re.compile(".+?ello.+?"), "hello")) {
-	print("matched")
-}
-```
+| Return Type | Query | Description |
+| :--- | :--- | :--- |
+| `int` | `state("client_id")` | Current client ID |
+| `int` | `state("dummy_id")` | Dummy client ID |
+| `string` | `state("game_mode")` | Current game mode ('DM', 'TDM', 'CTF', etc.) |
+| `bool` | `state("in_freeze")` | Whether currently frozen |
+| `int` | `state("team")` | Current team ID |
+| `string` | `state("map")` | Current map name |
+| `string` | `state("server_ip")` | Current server IP |
+| `int` | `state("players_connected")`| Connected player count |
 
 </details>
 
 ---
 
-<details open>
-<summary>Setting Pages Preview</summary>
+## 🤝 Credits
 
-### Main Settings
-<img width="1920" height="1854" alt="Settings" src="https://github.com/user-attachments/assets/9a9ea2cc-96bd-44b0-a4e5-fe68ed319ca1" />
-
-### Visuals
-<img width="1920" height="2792" alt="menu_2026-07-12_13-12-28" src="https://github.com/user-attachments/assets/91d2b82f-d013-476a-af10-2fd31de2869f" />
-
-### Warlist
-<img width="1920" height="1080" alt="menu_2026-07-12_13-44-18" src="https://github.com/user-attachments/assets/4a8138c0-817b-452e-b29e-dcdd96643ce6" />
-
-### Status bar
-<img width="1920" height="1080" alt="menu_2026-07-12_13-12-30" src="https://github.com/user-attachments/assets/26d4ec2f-2e23-4c78-98e5-c96bde360418" />
-
-### Bindwheel
-<img width="1920" height="1080" alt="menu_2026-07-12_13-12-32" src="https://github.com/user-attachments/assets/942384fe-32a7-44c1-af8b-e54a5ccf01f9" />
-
-### Player actions
-<img width="1920" height="1080" alt="menu_2026-07-12_13-12-33" src="https://github.com/user-attachments/assets/46436731-b867-4e71-a496-eaaf2b9b0bf7" />
-
-### Info
-<img width="1920" height="1080" alt="menu_2026-07-12_13-45-47" src="https://github.com/user-attachments/assets/09b589d4-3472-4ddd-98bd-04e0d5d7f7b9" />
-
-</details>
-
----
-
-<details>
-<summary>Console Commands</summary>
-
-```
-votekick "<Name> <Reason>"
-onlineinfo
-saveskin
-restoreskin
-playerinfo "<Name>"
-addtempwar "<Name>"
-deltempwar "<Name>"
-addtemphelper "<Name>"
-deltemphelper "<Name>"
-addtempmute "<Name>"
-deltempmute "<Name>"
-view_link <url>
-server_rainbow_speed "<speed>"
-server_rainbow_both_players "<0 | 1>"
-server_rainbow_sat <Saturation> <0 | 1 (Dummy)>
-server_rainbow_lht <Lightness> <0 | 1 (Dummy)>
-server_rainbow_body <0 | 1> <0 | 1 (Dummy)>
-server_rainbow_feet <0 | 1> <0 | 1 (Dummy)>
-reply_last <?Message>
-specid <id>
-```
-</details>
-
----
-
-### Credits
-- Original Entity-Client by [qxdFox](https://github.com/qxdFox) and [Miro8D](https://github.com/Miro8D).
-- Chinese Localization & Embedded fallback translation maintained by [gradiaun](https://github.com/gradiaun).
+- **Original Entity-Client**: [qxdFox](https://github.com/qxdFox) and [Miro8D](https://github.com/Miro8D)
+- **Engine & Game**: [DDNet Team](https://github.com/ddnet/ddnet)
+- **Personal Custom Fork & Chinese Localization**: [gradiaun](https://github.com/gradiaun)

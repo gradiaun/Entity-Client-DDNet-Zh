@@ -2945,7 +2945,7 @@ Ghost Tools
 == 幽灵 (Ghost) 工具
 
 Gores Mode
-== 血腥模式
+== Gores 自动切枪模式
 
 Hidden in server browser
 == 在服务器浏览器中隐藏
@@ -3555,3 +3555,24 @@ v = Velocity
 
 z = Zoom
 == z = 视野缩放 (Zoom)
+
+Gores Mode: Enabled
+== Gores 模式：已开启
+
+Gores Mode: Disabled
+== Gores 模式：已关闭
+
+Toggle Gores mode
+== 切换 Gores 自动切枪模式
+
+"advanced" Gores Mode
+== “高级” Gores 模式
+
+Disable if You Have Any Weapon
+== 持有重武器时自动暂停
+
+Auto Enable if Gametype is "Gores"
+== 在 Gores 模式服务器中自动开启
+
+Only Show Team Members in Spectator Mode
+== 观战/暂停时仅显示同队成员

@@ -298,7 +298,7 @@ void CItems::RenderLaser(const CLaserData *pCurrent, bool IsPredicted)
 
 	bool IsOtherTeam = (pCurrent->m_ExtraInfo && pCurrent->m_Owner >= 0 && GameClient()->IsOtherTeam(pCurrent->m_Owner));
 
-	float Alpha = IsOtherTeam ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.f;
+	float Alpha = IsOtherTeam ? ((g_Config.m_ClSpecTeamOnly && GameClient()->m_Snap.m_SpecInfo.m_Active) ? 0.0f : g_Config.m_ClShowOthersAlpha / 100.0f) : 1.f;
 
 	const ColorRGBA OuterColor = color_cast<ColorRGBA>(ColorHSLA(ColorOut).WithAlpha(Alpha));
 	const ColorRGBA InnerColor = color_cast<ColorRGBA>(ColorHSLA(ColorIn).WithAlpha(Alpha));
@@ -855,7 +855,7 @@ void CItems::RenderCosmeticLaser(const CNetObj_CosmeticLaser *pPrev, const CNetO
 
 	float Alpha = pCurrent->m_Alpha * 0.01f;
 	if(pCurrent->m_Alpha == -1)
-		Alpha = IsOtherTeam ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.0f;
+		Alpha = IsOtherTeam ? ((g_Config.m_ClSpecTeamOnly && GameClient()->m_Snap.m_SpecInfo.m_Active) ? 0.0f : g_Config.m_ClShowOthersAlpha / 100.0f) : 1.0f;
 	if(Alpha <= 0)
 		return; // Invisible
 
@@ -1027,7 +1027,7 @@ void CItems::RenderCosmeticPickup(const CNetObj_CosmeticPickup *pPrev, const CNe
 	bool IsOtherTeam = GameClient()->IsOtherTeam(Owner) || Owner < 0;
 	float Alpha = pCurrent->m_Alpha * 0.01f;
 	if(pCurrent->m_Alpha == -1)
-		Alpha = IsOtherTeam ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.0f;
+		Alpha = IsOtherTeam ? ((g_Config.m_ClSpecTeamOnly && GameClient()->m_Snap.m_SpecInfo.m_Active) ? 0.0f : g_Config.m_ClShowOthersAlpha / 100.0f) : 1.0f;
 	if(Alpha <= 0)
 		return; // Invisible
 
@@ -1096,7 +1096,7 @@ void CItems::RenderCosmeticProjectile(const CNetObj_CosmeticProjectile *pPrev, c
 
 	float Alpha = pCurrent->m_Alpha * 0.01f;
 	if(pCurrent->m_Alpha == -1)
-		Alpha = IsOtherTeam ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.0f;
+		Alpha = IsOtherTeam ? ((g_Config.m_ClSpecTeamOnly && GameClient()->m_Snap.m_SpecInfo.m_Active) ? 0.0f : g_Config.m_ClShowOthersAlpha / 100.0f) : 1.0f;
 	if(Alpha <= 0)
 		return; // Invisible
 

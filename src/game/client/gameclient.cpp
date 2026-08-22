@@ -4720,6 +4720,14 @@ bool CGameClient::IsOtherTeam(int ClientId) const
 	}
 	else if((m_Snap.m_SpecInfo.m_Active && m_Snap.m_SpecInfo.m_SpectatorId == SPEC_FREEVIEW) || ClientId < 0)
 	{
+		if(g_Config.m_ClSpecTeamOnly && m_Snap.m_SpecInfo.m_Active && ClientId >= 0)
+		{
+			int Team = m_Teams.Team(m_Snap.m_LocalClientId);
+			if(Team != 0 && Team != m_Teams.TeamSuper())
+			{
+				return m_Teams.Team(ClientId) != Team;
+			}
+		}
 		return false;
 	}
 	else if(m_Snap.m_SpecInfo.m_Active && m_Snap.m_SpecInfo.m_SpectatorId != SPEC_FREEVIEW)

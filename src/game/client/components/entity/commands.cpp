@@ -502,6 +502,16 @@ void CEClient::ConSpectateId(IConsole::IResult *pResult, void *pUserData)
 	pSelf->GameClient()->m_Chat.SendChat(0, pCmd);
 }
 
+void CEClient::ConToggleGoresMode(IConsole::IResult *pResult, void *pUserData)
+{
+	CEClient *pSelf = (CEClient *)pUserData;
+	g_Config.m_ClGoresMode ^= 1;
+	if(g_Config.m_ClGoresMode)
+		pSelf->GameClient()->ClientMessage("Gores Mode: Enabled");
+	else
+		pSelf->GameClient()->ClientMessage("Gores Mode: Disabled");
+}
+
 void CEClient::ConCrash(IConsole::IResult *pResult, void *pUserData)
 {
 	exit(666);
@@ -529,6 +539,7 @@ void CEClient::OnConsoleInit()
 	Console()->Register("votekick", "s[name] ?r[reason]", CFGFLAG_CLIENT, ConVotekick, this, "Call a votekick");
 	Console()->Register("onlineinfo", "", CFGFLAG_CLIENT, ConOnlineInfo, this, "Shows you how many people of default lists are on the current server");
 	Console()->Register("playerinfo", "r[name]", CFGFLAG_CLIENT, ConPlayerInfo, this, "Get Info of a Player");
+	Console()->Register("toggle_gores_mode", "", CFGFLAG_CLIENT, ConToggleGoresMode, this, "Toggle Gores Mode on/off");
 
 	// Skin Saving/Restoing
 	Console()->Register("restoreskin", "", CFGFLAG_CLIENT, ConRestoreSkin, this, "Restore Your Saved Info");

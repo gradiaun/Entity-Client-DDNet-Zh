@@ -421,7 +421,7 @@ void CPlayers::RenderHookCollLine(
 	// Render hook coll line
 	const int HookCollSize = Local ? g_Config.m_ClHookCollSize : g_Config.m_ClHookCollSizeOther;
 
-	float Alpha = GameClient()->IsOtherTeam(ClientId) ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.0f;
+	float Alpha = GameClient()->IsOtherTeam(ClientId) ? ((g_Config.m_ClSpecTeamOnly && GameClient()->m_Snap.m_SpecInfo.m_Active) ? 0.0f : g_Config.m_ClShowOthersAlpha / 100.0f) : 1.0f;
 	Alpha *= (float)g_Config.m_ClHookCollAlpha / 100;
 	if(Alpha <= 0.0f)
 		return;
@@ -608,7 +608,7 @@ void CPlayers::RenderPlayer(
 
 	float Alpha = 1.0f;
 	if(OtherTeam || ClientId < 0)
-		Alpha = g_Config.m_ClShowOthersAlpha / 100.0f;
+		Alpha = (g_Config.m_ClSpecTeamOnly && Spec) ? 0.0f : g_Config.m_ClShowOthersAlpha / 100.0f;
 	else if(g_Config.m_TcShowOthersGhosts && !Local && !Spec)
 		Alpha = g_Config.m_TcPredGhostsAlpha / 100.0f;
 
@@ -1256,7 +1256,7 @@ void CPlayers::OnRender()
 
 		const int ClientId = Client.ClientId();
 
-		float Alpha = (GameClient()->IsOtherTeam(ClientId) || ClientId < 0) ? g_Config.m_ClShowOthersAlpha / 100.f : 1.f;
+		float Alpha = (GameClient()->IsOtherTeam(ClientId) || ClientId < 0) ? ((g_Config.m_ClSpecTeamOnly && GameClient()->m_Snap.m_SpecInfo.m_Active) ? 0.0f : g_Config.m_ClShowOthersAlpha / 100.f) : 1.f;
 		if(ClientId == -2) // ghost
 		{
 			Alpha = g_Config.m_ClRaceGhostAlpha / 100.f;

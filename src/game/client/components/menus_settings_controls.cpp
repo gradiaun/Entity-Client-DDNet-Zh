@@ -84,6 +84,7 @@ void CMenusSettingsControls::OnInterfacesInit(CGameClient *pClient)
 		{EBindOptionGroup::WEAPON, Localizable("Laser"), "+weapon5"},
 		{EBindOptionGroup::WEAPON, Localizable("Next weapon"), "+nextweapon"},
 		{EBindOptionGroup::WEAPON, Localizable("Prev. weapon"), "+prevweapon"},
+		{EBindOptionGroup::WEAPON, Localizable("Toggle Gores mode"), "toggle_gores_mode"},
 		{EBindOptionGroup::VOTING, Localizable("Vote yes"), "vote yes"},
 		{EBindOptionGroup::VOTING, Localizable("Vote no"), "vote no"},
 		{EBindOptionGroup::CHAT, Localizable("Chat"), "+show_chat; chat all"},

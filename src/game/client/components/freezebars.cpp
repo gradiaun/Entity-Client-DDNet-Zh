@@ -44,7 +44,7 @@ bool CFreezeBars::RenderKillBar()
 	Position.x -= FreezeBarHalfWidth;
 	Position.y += 22.0f;
 
-	float Alpha = GameClient()->IsOtherTeam(ClientId) ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.0f;
+	float Alpha = GameClient()->IsOtherTeam(ClientId) ? ((g_Config.m_ClSpecTeamOnly && GameClient()->m_Snap.m_SpecInfo.m_Active) ? 0.0f : g_Config.m_ClShowOthersAlpha / 100.0f) : 1.0f;
 
 	const ColorRGBA Color = ColorRGBA(0.6f, 1.0f, 1.6f, Alpha);
 
@@ -80,7 +80,7 @@ void CFreezeBars::RenderFreezeBar(int ClientId)
 	Position.x -= FreezeBarHalfWidth;
 	Position.y += 22.0f;
 
-	float Alpha = GameClient()->IsOtherTeam(ClientId) ? g_Config.m_ClShowOthersAlpha / 100.0f : 1.0f;
+	float Alpha = GameClient()->IsOtherTeam(ClientId) ? ((g_Config.m_ClSpecTeamOnly && GameClient()->m_Snap.m_SpecInfo.m_Active) ? 0.0f : g_Config.m_ClShowOthersAlpha / 100.0f) : 1.0f;
 	if(pCharacter->m_IsInFreeze)
 	{
 		Alpha *= g_Config.m_ClFreezeBarsAlphaInsideFreeze / 100.0f;

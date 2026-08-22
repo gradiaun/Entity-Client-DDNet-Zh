@@ -899,7 +899,7 @@ void CNamePlates::RenderNamePlateGame(vec2 Position, const CNetObj_PlayerInfo *p
 	if(g_Config.m_ClNamePlatesAlways == 0)
 		Alpha *= std::clamp(1.0f - std::pow(distance(GameClient()->m_Controls.m_aTargetPos[g_Config.m_ClDummy], Position) / 200.0f, 16.0f), 0.0f, 1.0f);
 	if(OtherTeam)
-		Alpha *= (float)g_Config.m_ClShowOthersAlpha / 100.0f;
+		Alpha *= (g_Config.m_ClSpecTeamOnly && GameClient()->m_Snap.m_SpecInfo.m_Active) ? 0.0f : (float)g_Config.m_ClShowOthersAlpha / 100.0f;
 
 	if(Data.m_Color == ColorRGBA(0, 0, 0, 0)) // If It doesn't have a Value -> so it isn't completely black
 		Data.m_Color = ColorRGBA(1.0f, 1.0f, 1.0f);

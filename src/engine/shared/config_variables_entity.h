@@ -143,6 +143,7 @@ MACRO_CONFIG_INT(ClIndicatorHideAfk, ec_indicator_hide_afk, 0, 0, 1, CFGFLAG_CLI
 
 MACRO_CONFIG_INT(ClIndicatorTeamOnly, ec_indicator_inteam, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Only show indicator while in team")
 MACRO_CONFIG_INT(ClIndicatorTees, ec_indicator_tees, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Show tees instead of circles")
+MACRO_CONFIG_INT(ClSpecTeamOnly, ec_spec_team_only, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Only show players from your own team when spectating/paused")
 
 // Translate
 MACRO_CONFIG_STR(EcTranslateBackend, ec_translate_backend, 32, "google", CFGFLAG_CLIENT | CFGFLAG_SAVE, "Translate backends (ftapi, libretranslate, deeplfree/deepl, google)")
