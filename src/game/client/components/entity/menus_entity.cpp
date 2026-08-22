@@ -664,7 +664,7 @@ void CMenus::RenderEClientInfoPage(CUIRect MainView)
 	}
 
 	LeftView.HSplitTop(HeadlineHeight, &Label, &LeftView);
-	Ui()->DoLabel(&Label, "Hide Settings Tabs", LineSize, TEXTALIGN_ML);
+	Ui()->DoLabel(&Label, EcLocalize("Hide Settings Tabs"), LineSize, TEXTALIGN_ML);
 
 	static int s_ShowSettings = IsFlagSet(g_Config.m_ClEClientSettingsTabs, SettingTab::SETTINGS);
 	DoButton_CheckBoxAutoVMarginAndSet(&s_ShowSettings, EcLocalize("Settings"), &s_ShowSettings, &LeftView, LineSize);
@@ -1508,16 +1508,16 @@ void CMenus::RenderSettingsPlayerActions(CUIRect MainView)
 
 	LeftView.HSplitTop(MarginSmall, nullptr, &LeftView);
 	LeftView.HSplitTop(LineSize, &Label, &LeftView);
-	Ui()->DoLabel(&Label, "Use left mouse to select", 14.0f, TEXTALIGN_ML);
+	Ui()->DoLabel(&Label, EcLocalize("Use left mouse to select"), 14.0f, TEXTALIGN_ML);
 	LeftView.HSplitTop(LineSize, &Label, &LeftView);
-	Ui()->DoLabel(&Label, "Use right mouse to swap with selected", 14.0f, TEXTALIGN_ML);
+	Ui()->DoLabel(&Label, EcLocalize("Use right mouse to swap with selected"), 14.0f, TEXTALIGN_ML);
 	LeftView.HSplitTop(LineSize, &Label, &LeftView);
-	Ui()->DoLabel(&Label, "Use middle mouse select without copy", 14.0f, TEXTALIGN_ML);
+	Ui()->DoLabel(&Label, EcLocalize("Use middle mouse select without copy"), 14.0f, TEXTALIGN_ML);
 	LeftView.HSplitTop(LineSize, &Label, &LeftView);
 	LeftView.HSplitTop(LineSize, &Label, &LeftView);
-	Ui()->DoLabel(&Label, "To use the name of the target player do \"%s\"", 14.0f, TEXTALIGN_ML);
+	Ui()->DoLabel(&Label, EcLocalize("To use the name of the target player do \"%s\""), 14.0f, TEXTALIGN_ML);
 	LeftView.HSplitTop(LineSize, &Label, &LeftView);
-	Ui()->DoLabel(&Label, "To get the Client Id do \"%d\"", 14.0f, TEXTALIGN_ML);
+	Ui()->DoLabel(&Label, EcLocalize("To get the Client Id do \"%d\""), 14.0f, TEXTALIGN_ML);
 
 	// RenderTee
 	{
@@ -1950,12 +1950,12 @@ void CMenus::RenderSettingsWarList(CUIRect MainView)
 	Column2.HSplitTop(LineSize, &Button, &Column2);
 	Button.VSplitMid(&ButtonL, &ButtonR, MarginSmall);
 	static unsigned char s_NameRadio, s_ClanRadio;
-	if(DoButton_CheckBox_Common(&s_NameRadio, "Name", s_IsName ? "X" : "", &ButtonL, BUTTONFLAG_ALL))
+	if(DoButton_CheckBox_Common(&s_NameRadio, EcLocalize("Name"), s_IsName ? "X" : "", &ButtonL, BUTTONFLAG_ALL))
 	{
 		s_IsName = 1;
 		s_IsClan = 0;
 	}
-	if(DoButton_CheckBox_Common(&s_ClanRadio, "Clan", s_IsClan ? "X" : "", &ButtonR, BUTTONFLAG_ALL))
+	if(DoButton_CheckBox_Common(&s_ClanRadio, EcLocalize("Clan"), s_IsClan ? "X" : "", &ButtonR, BUTTONFLAG_ALL))
 	{
 		s_IsName = 0;
 		s_IsClan = 1;
@@ -2675,7 +2675,7 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 
 					Button.VSplitLeft(0.0f, 0, &ModuleRect);
 
-					if(DoButton_CheckBox(&g_Config.m_ClNotifyWhenLast, "Show when you're the last player", g_Config.m_ClNotifyWhenLast, &ModuleRect))
+					if(DoButton_CheckBox(&g_Config.m_ClNotifyWhenLast, EcLocalize("Show when you're the last player"), g_Config.m_ClNotifyWhenLast, &ModuleRect))
 						g_Config.m_ClNotifyWhenLast ^= 1;
 
 					if(g_Config.m_ClNotifyWhenLast || HasSearch)
@@ -2684,7 +2684,7 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 						s_LastMessage.SetBuffer(g_Config.m_ClNotifyWhenLastText, sizeof(g_Config.m_ClNotifyWhenLastText));
 						s_LastMessage.SetEmptyText("Last!");
 
-						float Length = TextRender()->TextBoundingBox(12.5f, "Text to Show").m_W + 3.5f; // Give it some breathing room
+						float Length = TextRender()->TextBoundingBox(12.5f, EcLocalize("Text to Show")).m_W + 3.5f; // Give it some breathing room
 
 						ModuleRect.HSplitTop(21.0f, &Button, &ModuleRect);
 						ModuleRect.HSplitTop(19.9f, &Button, &MainView);
@@ -2695,7 +2695,7 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 						Ui()->DoEditBox(&s_LastMessage, &Button, EditBoxFontSize);
 
 						ModuleRect.HSplitTop(20.0f, &Button, &ModuleRect);
-						Ui()->DoLabel(&ModuleRect, "Text to Show", 12.5f, TEXTALIGN_ML);
+						Ui()->DoLabel(&ModuleRect, EcLocalize("Text to Show"), 12.5f, TEXTALIGN_ML);
 						ModuleRect.HSplitTop(-20.0f, &Button, &ModuleRect);
 
 						static CButtonContainer s_LastColor;
@@ -2719,15 +2719,15 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 					{
 						ModuleRect.HSplitTop(LineSize, &Button, &ModuleRect);
 						static int s_NamePlatesStrong = 0;
-						if(DoButton_CheckBox(&s_NamePlatesStrong, "Notify you everytime someone gets auto added", g_Config.m_ClAutoAddOnNameChange == 2, &Button))
+						if(DoButton_CheckBox(&s_NamePlatesStrong, EcLocalize("Notify you everytime someone gets auto added"), g_Config.m_ClAutoAddOnNameChange == 2, &Button))
 							g_Config.m_ClAutoAddOnNameChange = g_Config.m_ClAutoAddOnNameChange != 2 ? 2 : 1;
 					}
 				}
 				ModuleRect.HSplitTop(2.5f, &Button, &ModuleRect);
 
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClNotifyOnMove, "Notify When Player is Being Moved", &g_Config.m_ClNotifyOnMove, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClNotifyOnMove, EcLocalize("Notify When Player is Being Moved"), &g_Config.m_ClNotifyOnMove, &ModuleRect, LineSize);
 
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClAntiSpawnBlock, "Anti Spawn Block", &g_Config.m_ClAntiSpawnBlock, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClAntiSpawnBlock, EcLocalize("Anti Spawn Block"), &g_Config.m_ClAntiSpawnBlock, &ModuleRect, LineSize);
 				GameClient()->m_Tooltips.DoToolTip(&g_Config.m_ClAntiSpawnBlock, &Button, "Puts you into a random Team when you respawn and back to team 0 when close to start line");
 			}
 		},
@@ -2910,14 +2910,14 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 					Client()->SendFastInputsInfo(g_Config.m_ClDummy);
 
 				ModuleRect.HSplitTop(LineSize, &Button, &ModuleRect);
-				if(Ui()->DoScrollbarOption(&g_Config.m_TcFastInputAmount, &g_Config.m_TcFastInputAmount, &Button, "Amount", 1, 40, &CUi::ms_LinearScrollbarScale, CUi::SCROLLBAR_OPTION_NOCLAMPVALUE | CUi::SCROLLBAR_OPTION_DELAYUPDATE, "ms"))
+				if(Ui()->DoScrollbarOption(&g_Config.m_TcFastInputAmount, &g_Config.m_TcFastInputAmount, &Button, EcLocalize("Amount"), 1, 40, &CUi::ms_LinearScrollbarScale, CUi::SCROLLBAR_OPTION_NOCLAMPVALUE | CUi::SCROLLBAR_OPTION_DELAYUPDATE, "ms"))
 					Client()->SendFastInputsInfo(g_Config.m_ClDummy);
 				ModuleRect.HSplitTop(2.0f, &Button, &ModuleRect);
 
 				if(g_Config.m_TcFastInput || HasSearch)
 					DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_TcFastInputOthers, EcLocalize("Extra tick other tees (increases other tees latency, \nmakes dragging slightly easier when using fast input)"), &g_Config.m_TcFastInputOthers, &ModuleRect, LineSize);
 
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClSubTickAiming, "Sub-Tick aiming", &g_Config.m_ClSubTickAiming, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClSubTickAiming, EcLocalize("Sub-Tick aiming"), &g_Config.m_ClSubTickAiming, &ModuleRect, LineSize);
 			}
 		},
 	});
@@ -3070,7 +3070,7 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 		CUIRect NoResultsRect;
 		MainView.HSplitTop(LineSize, &NoResultsRect, &MainView);
 		if(s_ScrollRegion.AddRect(NoResultsRect))
-			Ui()->DoLabel(&NoResultsRect, "No settings match your search", FontSize, TEXTALIGN_MC);
+			Ui()->DoLabel(&NoResultsRect, EcLocalize("No settings match your search"), FontSize, TEXTALIGN_MC);
 	}
 
 	s_ScrollRegion.End();
@@ -3266,7 +3266,7 @@ void CMenus::RenderSettingsVisual(CUIRect MainView)
 			ModuleRect.VMargin(Margin, &ModuleRect);
 
 			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
-			Ui()->DoLabel(&Button, "Physic Balls", HeaderSize, HeaderAlignment);
+			Ui()->DoLabel(&Button, EcLocalize("Physic Balls"), HeaderSize, HeaderAlignment);
 
 			ModuleRect.HSplitTop(LineSize, &Button, &ModuleRect);
 
@@ -3600,10 +3600,10 @@ void CMenus::RenderSettingsVisual(CUIRect MainView)
 				RenderTee(Preview.Center() + vec2(0, 4), TeeEyeDirection(Preview.Center()), CAnimState::GetIdle(), &TeeRenderInfo, EMOTE_NORMAL);
 			}
 			ModuleRect.VSplitLeft(88, &Button, &ModuleRect);
-			DoButton_CheckBoxAutoVMarginAndSet(&GameClient()->m_EClient.m_RainbowBody[g_Config.m_ClDummy], "Rainbow Body", &GameClient()->m_EClient.m_RainbowBody[g_Config.m_ClDummy], &ModuleRect, LineSize);
-			DoButton_CheckBoxAutoVMarginAndSet(&GameClient()->m_EClient.m_RainbowFeet[g_Config.m_ClDummy], "Rainbow Feet", &GameClient()->m_EClient.m_RainbowFeet[g_Config.m_ClDummy], &ModuleRect, LineSize);
-			DoButton_CheckBoxAutoVMarginAndSet(&GameClient()->m_EClient.m_BothPlayers, "Do Dummy and Main Player at the same time", &GameClient()->m_EClient.m_BothPlayers, &ModuleRect, LineSize);
-			DoButton_CheckBoxAutoVMarginAndSet(&GameClient()->m_EClient.m_ShowServerSide, "Show what it'll look like Server-side", &GameClient()->m_EClient.m_ShowServerSide, &ModuleRect, LineSize);
+			DoButton_CheckBoxAutoVMarginAndSet(&GameClient()->m_EClient.m_RainbowBody[g_Config.m_ClDummy], EcLocalize("Rainbow Body"), &GameClient()->m_EClient.m_RainbowBody[g_Config.m_ClDummy], &ModuleRect, LineSize);
+			DoButton_CheckBoxAutoVMarginAndSet(&GameClient()->m_EClient.m_RainbowFeet[g_Config.m_ClDummy], EcLocalize("Rainbow Feet"), &GameClient()->m_EClient.m_RainbowFeet[g_Config.m_ClDummy], &ModuleRect, LineSize);
+			DoButton_CheckBoxAutoVMarginAndSet(&GameClient()->m_EClient.m_BothPlayers, EcLocalize("Do Dummy and Main Player at the same time"), &GameClient()->m_EClient.m_BothPlayers, &ModuleRect, LineSize);
+			DoButton_CheckBoxAutoVMarginAndSet(&GameClient()->m_EClient.m_ShowServerSide, EcLocalize("Show what it'll look like Server-side"), &GameClient()->m_EClient.m_ShowServerSide, &ModuleRect, LineSize);
 		},
 	});
 
@@ -3849,7 +3849,7 @@ void CMenus::RenderSettingsVisual(CUIRect MainView)
 			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
 			Ui()->DoLabel(&Button, EcLocalize("Media Island"), HeaderSize, HeaderAlignment);
 			{
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClMediaIsland, "Enable media island", &g_Config.m_ClMediaIsland, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClMediaIsland, EcLocalize("Enable media island"), &g_Config.m_ClMediaIsland, &ModuleRect, LineSize);
 
 				static CButtonContainer s_IslandColor;
 				DoLine_ColorPicker(&s_IslandColor, ColorPickerLineSize, ColorPickerLabelSize, ColorPickerLineSpacing, &ModuleRect, EcLocalize("Island color"), &g_Config.m_ClMediaIslandColor, color_cast<ColorRGBA, ColorHSLA>(ColorHSLA(DefaultConfig::ClMediaIslandColor, true)), false, nullptr, true);
@@ -3862,13 +3862,13 @@ void CMenus::RenderSettingsVisual(CUIRect MainView)
 				//GameClient()->m_Tooltips.DoToolTip(&g_Config.m_ClMediaIslandAnimation, &Button, "Time it takes for the Islands animation, lower = slower", FontSize);
 
 				ModuleRect.HSplitTop(5.0f, &Button, &ModuleRect);
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClMediaIslandVisualizer, "Show Visualizer", &g_Config.m_ClMediaIslandVisualizer, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClMediaIslandVisualizer, EcLocalize("Show Visualizer"), &g_Config.m_ClMediaIslandVisualizer, &ModuleRect, LineSize);
 
 				if(g_Config.m_ClMediaIslandVisualizer || HasSearch)
 				{
 					static std::vector<CButtonContainer> s_vButtonContainers = {{}, {}};
 					int Value = g_Config.m_ClMediaIslandVisualizerAlignment;
-					if(DoLine_RadioMenu(ModuleRect, EcLocalize("Visualizer Alignment:"), s_vButtonContainers, {"Bottom", "Center"}, {1, 2}, Value))
+					if(DoLine_RadioMenu(ModuleRect, EcLocalize("Visualizer Alignment:"), s_vButtonContainers, {EcLocalize("Bottom"), EcLocalize("Center")}, {1, 2}, Value))
 					{
 						g_Config.m_ClMediaIslandVisualizerAlignment = Value;
 					}
@@ -3892,11 +3892,11 @@ void CMenus::RenderSettingsVisual(CUIRect MainView)
 			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
 			Ui()->DoLabel(&Button, EcLocalize("Map Overview"), HeaderSize, HeaderAlignment);
 			{
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClMapOverview, "Enable map overview", &g_Config.m_ClMapOverview, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClMapOverview, EcLocalize("Enable map overview"), &g_Config.m_ClMapOverview, &ModuleRect, LineSize);
 				GameClient()->m_Tooltips.DoToolTip(&g_Config.m_ClMapOverview, &Button, "Renders areas darker that you have already explored", FontSize);
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClMapOverviewSpectatingOnly, "Only show map overview while spectating", &g_Config.m_ClMapOverviewSpectatingOnly, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClMapOverviewSpectatingOnly, EcLocalize("Only show map overview while spectating"), &g_Config.m_ClMapOverviewSpectatingOnly, &ModuleRect, LineSize);
 				ModuleRect.HSplitTop(LineSize, &Button, &ModuleRect);
-				Ui()->DoScrollbarOption(&g_Config.m_ClMapOverviewOpacity, &g_Config.m_ClMapOverviewOpacity, &Button, "Explored area opacity", 0, 100, &CUi::ms_LinearScrollbarScale, 0u, "");
+				Ui()->DoScrollbarOption(&g_Config.m_ClMapOverviewOpacity, &g_Config.m_ClMapOverviewOpacity, &Button, EcLocalize("Explored area opacity"), 0, 100, &CUi::ms_LinearScrollbarScale, 0u, "");
 			}
 		},
 	});
@@ -3916,12 +3916,12 @@ void CMenus::RenderSettingsVisual(CUIRect MainView)
 			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
 			Ui()->DoLabel(&Button, EcLocalize("Discord RPC"), HeaderSize, HeaderAlignment);
 			{
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClDiscordRPC, "Use Discord Rich Presence", &g_Config.m_ClDiscordRPC, &ModuleRect, LineSize);
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClDiscordMapStatus, "Show what Map you're on", &g_Config.m_ClDiscordMapStatus, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClDiscordRPC, EcLocalize("Use Discord Rich Presence"), &g_Config.m_ClDiscordRPC, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClDiscordMapStatus, EcLocalize("Show what Map you're on"), &g_Config.m_ClDiscordMapStatus, &ModuleRect, LineSize);
 
 				std::array<float, 2> Sizes = {
-					TextRender()->TextBoundingBox(FontSize, "Online Message:").m_W,
-					TextRender()->TextBoundingBox(FontSize, "Offline Message:").m_W};
+					TextRender()->TextBoundingBox(FontSize, EcLocalize("Online Message:")).m_W,
+					TextRender()->TextBoundingBox(FontSize, EcLocalize("Offline Message:")).m_W};
 				float Length = *std::max_element(Sizes.begin(), Sizes.end()) + 3.5f;
 
 				auto &&RenderEditBox = [&](CLineInput *pLineInput, const char *pLabelText, char *pBuffer, size_t BufferSize, const char *pEmptyText) {
@@ -3984,7 +3984,7 @@ void CMenus::RenderSettingsVisual(CUIRect MainView)
 
 			ModuleRect.HSplitTop(2.4f, &Label, &ModuleRect);
 			ModuleRect.VSplitLeft(25.0f, &ModuleRect, &ModuleRect);
-			Ui()->DoLabel(&ModuleRect, "Skin Name:", 13.0f, TEXTALIGN_LEFT);
+			Ui()->DoLabel(&ModuleRect, EcLocalize("Skin Name:"), 13.0f, TEXTALIGN_LEFT);
 
 			ModuleRect.HSplitTop(-1, &Button, &ModuleRect);
 			ModuleRect.HSplitTop(18.9f, &Button, &ModuleRect);
@@ -4235,13 +4235,13 @@ void CMenus::RenderSettingsVisual(CUIRect MainView)
 								s_vFrozenWarTypeIds.resize(WarTypes);
 
 							ModuleRect.HSplitTop(LineSize, &Button2, &ModuleRect);
-							if(DoButton_CheckBox(s_vFrozenWarTypeIds.data(), "Show players without entry", IsFlagSet(g_Config.m_ClWarlistFrozenTeeFlags, 0), &Button2))
+							if(DoButton_CheckBox(s_vFrozenWarTypeIds.data(), EcLocalize("Show players without entry"), IsFlagSet(g_Config.m_ClWarlistFrozenTeeFlags, 0), &Button2))
 								SetFlag(g_Config.m_ClWarlistFrozenTeeFlags, 0, !IsFlagSet(g_Config.m_ClWarlistFrozenTeeFlags, 0));
 
 							for(size_t Type = 1; Type < WarTypes; Type++)
 							{
 								char aBuf[64];
-								str_format(aBuf, sizeof(aBuf), "%s '%s'", "Show", GameClient()->m_WarList.m_WarTypes.at(Type)->m_aWarName);
+								str_format(aBuf, sizeof(aBuf), "%s '%s'", EcLocalize("Show"), GameClient()->m_WarList.m_WarTypes.at(Type)->m_aWarName);
 								const bool FlagSet = IsFlagSet(g_Config.m_ClWarlistFrozenTeeFlags, Type);
 
 								ModuleRect.HSplitTop(LineSize, &Button2, &ModuleRect);
@@ -4274,7 +4274,7 @@ void CMenus::RenderSettingsVisual(CUIRect MainView)
 		CUIRect NoResultsRect;
 		MainView.HSplitTop(LineSize, &NoResultsRect, &MainView);
 		if(s_ScrollRegion.AddRect(NoResultsRect))
-			Ui()->DoLabel(&NoResultsRect, "No settings match your search", FontSize, TEXTALIGN_MC);
+			Ui()->DoLabel(&NoResultsRect, EcLocalize("No settings match your search"), FontSize, TEXTALIGN_MC);
 	}
 	s_ScrollRegion.End();
 }

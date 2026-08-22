@@ -20,7 +20,7 @@ const char *Localize(const char *pStr, const char *pContext)
 
 const char *EcLocalize(const char *pStr, const char *pContext)
 {
-	return pStr;
+	return Localize(pStr, pContext);
 }
 
 void CLocalizationDatabase::LoadIndexfile(IStorage *pStorage, IConsole *pConsole)
