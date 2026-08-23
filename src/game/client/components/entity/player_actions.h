@@ -30,8 +30,6 @@ class CPlayerActions : public CComponent
 
 	int m_SelectedBind;
 
-	int GetClosestClientId(vec2 Pos);
-
 	static void ConOpenPlayerActionMenu(IConsole::IResult *pResult, void *pUserData);
 	static void ConAddPlayerAction(IConsole::IResult *pResult, void *pUserData);
 	static void ConRemovePlayerAction(IConsole::IResult *pResult, void *pUserData);
@@ -81,6 +79,8 @@ public:
 	void AddDefaultBinds();
 
 	void ExecuteBind(int Bind);
+
+	int GetClosestClientId(vec2 Pos);
 };
 
 #endif // GAME_CLIENT_COMPONENTS_ENTITY_PLAYER_ACTIONS_H

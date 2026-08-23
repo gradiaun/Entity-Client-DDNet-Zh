@@ -214,24 +214,29 @@ void CEClient::AutoJoinTeam()
 
 void CEClient::GoresMode()
 {
-	// if turning off kog mode and it was on before, rebind to previous bind
 	if(!GameClient()->m_Snap.m_pLocalCharacter)
-		return;
-	if(!g_Config.m_ClGoresMode)
 		return;
 
 	CCharacterCore Core = GameClient()->m_PredictedPrevChar;
+	bool HasExtraWeapons = (Core.m_aWeapons[WEAPON_GRENADE].m_Got || Core.m_aWeapons[WEAPON_LASER].m_Got || Core.m_aWeapons[WEAPON_SHOTGUN].m_Got);
 
 	if(g_Config.m_ClGoresModeDisableIfWeapons)
 	{
-		if(Core.m_aWeapons[WEAPON_GRENADE].m_Got || Core.m_aWeapons[WEAPON_LASER].m_Got || Core.m_aWeapons[WEAPON_SHOTGUN].m_Got)
-			m_WeaponsGot = true;
-		if((!Core.m_aWeapons[WEAPON_GRENADE].m_Got && !Core.m_aWeapons[WEAPON_LASER].m_Got && !Core.m_aWeapons[WEAPON_SHOTGUN].m_Got) && m_WeaponsGot)
-			m_WeaponsGot = false;
-
-		if(m_WeaponsGot)
-			return;
+		// Check on newly acquired weapons: if player just got a heavy weapon, execute a one-time disable
+		if(HasExtraWeapons && !m_HadExtraWeapons)
+		{
+			if(g_Config.m_ClGoresMode)
+			{
+				g_Config.m_ClGoresMode = 0;
+				GameClient()->ClientMessage("Gores Mode: Disabled (acquired heavy weapon)");
+			}
+		}
 	}
+	m_HadExtraWeapons = HasExtraWeapons;
+	m_WeaponsGot = false; // Always allow active Gores Mode bindings to function even with heavy weapons
+
+	if(!g_Config.m_ClGoresMode)
+		return;
 
 	if(GameClient()->m_Snap.m_pLocalCharacter->m_Weapon == 0)
 		GameClient()->m_Controls.m_aInputData[g_Config.m_ClDummy].m_WantedWeapon = WEAPON_GUN + 1;
@@ -600,6 +605,8 @@ void CEClient::OnRender()
 
 void CEClient::OnSelfDeath(bool Dummy)
 {
+	m_HadExtraWeapons = false;
+
 	// only count deaths of the tee we are playing on, like before dummy support
 	if(Dummy != (bool)g_Config.m_ClDummy)
 		return;

@@ -258,6 +258,9 @@ MACRO_CONFIG_STR(ClAutoJoinTeamName, ec_auto_join_team_name, 16, "", CFGFLAG_CLI
 MACRO_CONFIG_INT(ClAutoAddOnNameChange, ec_auto_add_on_name_change, 2, 0, 2, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Automatically adds a player back to a list if their name changed")
 MACRO_CONFIG_INT(ClAutoJoinTest, ec_auto_join_test, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Auto Join Test")
 
+// Dummy Hammer
+MACRO_CONFIG_INT(ClDummyHammerKeepHook, ec_dummy_hammer_keep_hook, 1, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Keep hook held when dummy is hammering with cl_dummy_hammer")
+
 // Anti Spawn Block
 MACRO_CONFIG_INT(ClAntiSpawnBlock, ec_anti_spawn_block, 0, 0, 1, CFGFLAG_CLIENT | CFGFLAG_SAVE, "Puts you in a team when you die and in team 0 when youre about to cross the start line")
 

@@ -610,6 +610,14 @@ int CGameClient::OnSnapInput(int *pData, bool Dummy, bool Force)
 		const vec2 Dir = m_LocalCharacterPos - m_aClients[m_aLocalIds[!g_Config.m_ClDummy]].m_Predicted.m_Pos;
 		m_HammerInput.m_TargetX = (int)Dir.x;
 		m_HammerInput.m_TargetY = (int)Dir.y;
+		if(g_Config.m_ClDummyHammerKeepHook)
+		{
+			m_HammerInput.m_Hook = m_DummyInput.m_Hook;
+		}
+		else
+		{
+			m_HammerInput.m_Hook = 0;
+		}
 
 		mem_copy(pData, &m_HammerInput, sizeof(m_HammerInput));
 		return sizeof(m_HammerInput);

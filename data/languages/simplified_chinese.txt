@@ -3594,3 +3594,18 @@ Steal Closest Skin Key
 
 Copy Skin From Closest Player Now
 == 立即复制最近玩家的皮肤
+
+Dummy Hammer Settings
+== 分身锤击 (Dummy Hammer) 设置
+
+Keep Hook Held While Hammering
+== 分身锤击时保持钩爪抓取 (不松钩)
+
+Toggle Dummy Hammer Key
+== 切换分身锤击按键
+
+Toggle Keep Hook Key
+== 切换保持钩爪状态按键
+
+Commands List
+== 指令列表

@@ -2550,106 +2550,273 @@ void CMenus::RenderSettingsProfiles(CUIRect MainView)
 
 void CMenus::RenderSettingsExtensions(CUIRect MainView)
 {
-	static CScrollRegion s_ScrollRegion;
-	CScrollRegionParams ScrollParams;
-	ScrollParams.m_ScrollUnit = 60.0f;
-	ScrollParams.m_ForceShowScrollbar = true;
-	ScrollParams.m_ScrollbarMargin = 5.0f;
-	s_ScrollRegion.Begin(&MainView, &ScrollParams);
+	static int s_CurExtensionTab = 0;
 
-	std::vector<CSettingsModule> vModules;
+	CUIRect TabBar, Button;
+	const int NumTabs = 2;
+	MainView.HSplitTop(LineSize * 1.1f, &TabBar, &MainView);
+	const float TabWidth = TabBar.w / NumTabs;
+	static CButtonContainer s_aPageTabs[NumTabs] = {};
+	const char *apTabNames[NumTabs] = {
+		EcLocalize("Settings"),
+		EcLocalize("Commands List"),
+	};
 
-	CUIRect Label, Button;
+	for(int Tab = 0; Tab < NumTabs; ++Tab)
+	{
+		TabBar.VSplitLeft(TabWidth, &Button, &TabBar);
+		int Corners = Tab == 0 ? IGraphics::CORNER_L : IGraphics::CORNER_R;
 
-	/* Gores Mode Extension */
-	vModules.push_back({
-		ESettingsModuleColumn::LEFT,
-		{"gores", "mode", "switch", "weapon", "hammer", "key", "auto", "toggle"},
-		[](bool HasSearch) {
-			return 140.0f;
-		},
-		[&](CUIRect ModuleRect, bool HasSearch) {
-			ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
-			ModuleRect.VMargin(Margin, &ModuleRect);
+		if(DoButton_MenuTab(&s_aPageTabs[Tab], apTabNames[Tab], s_CurExtensionTab == Tab, &Button, Corners))
+			s_CurExtensionTab = Tab;
+	}
 
-			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
-			Ui()->DoLabel(&Button, EcLocalize("Gores Mode"), HeaderSize, HeaderAlignment);
-
-			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClGoresMode, EcLocalize("\"advanced\" Gores Mode"), &g_Config.m_ClGoresMode, &ModuleRect, LineSize);
-			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClGoresModeDisableIfWeapons, EcLocalize("Disable if You Have Any Weapon"), &g_Config.m_ClGoresModeDisableIfWeapons, &ModuleRect, LineSize);
-			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClAutoEnableGoresMode, EcLocalize("Auto Enable if Gametype is \"Gores\""), &g_Config.m_ClAutoEnableGoresMode, &ModuleRect, LineSize);
-
-			static CButtonContainer s_ReaderButtonGores, s_ClearButtonGores;
-			DoLine_KeyReader(ModuleRect, s_ReaderButtonGores, s_ClearButtonGores, EcLocalize("Toggle Gores Mode Key"), "toggle_gores_mode");
-		},
-	});
-
-	/* Spectate Extension */
-	vModules.push_back({
-		ESettingsModuleColumn::LEFT,
-		{"spectate", "spec", "pause", "team", "only", "filter"},
-		[](bool HasSearch) {
-			return 75.0f;
-		},
-		[&](CUIRect ModuleRect, bool HasSearch) {
-			ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
-			ModuleRect.VMargin(Margin, &ModuleRect);
-
-			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
-			Ui()->DoLabel(&Button, EcLocalize("Spectate Settings"), HeaderSize, HeaderAlignment);
-
-			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClSpecTeamOnly, EcLocalize("Only Show Team Members in Spectator Mode"), &g_Config.m_ClSpecTeamOnly, &ModuleRect, LineSize);
-		},
-	});
-
-	/* Skin Stealer Extension */
-	vModules.push_back({
-		ESettingsModuleColumn::RIGHT,
-		{"skin", "steal", "copy", "closest", "player", "command", "bind"},
-		[](bool HasSearch) {
-			return 100.0f;
-		},
-		[&](CUIRect ModuleRect, bool HasSearch) {
-			ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
-			ModuleRect.VMargin(Margin, &ModuleRect);
-
-			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
-			Ui()->DoLabel(&Button, EcLocalize("Skin Stealer"), HeaderSize, HeaderAlignment);
-
-			static CButtonContainer s_ReaderButtonSteal, s_ClearButtonSteal;
-			DoLine_KeyReader(ModuleRect, s_ReaderButtonSteal, s_ClearButtonSteal, EcLocalize("Steal Closest Skin Key"), "steal_skin");
-
-			static CButtonContainer s_CopyNowBtn;
-			ModuleRect.HSplitTop(LineSize, &Button, &ModuleRect);
-			if(DoButton_Menu(&s_CopyNowBtn, EcLocalize("Copy Skin From Closest Player Now"), 0, &Button))
-			{
-				GameClient()->m_EClient.StealSkin(nullptr);
-			}
-		},
-	});
-
-	static CLineInputBuffered<32> s_VisualSearchInput;
-	RenderSettingsModuleSearchBar(s_ScrollRegion, MainView, vModules, s_VisualSearchInput);
 	MainView.HSplitTop(10.0f, nullptr, &MainView);
 
-	const char *pSearch = s_VisualSearchInput.GetString();
-
-	CUIRect ViewLeft, ViewRight;
-	MainView.VSplitMid(&ViewLeft, &ViewRight, 10.0f);
-
-	if(HasMatchingSettingsModules(vModules, pSearch))
+	if(s_CurExtensionTab == 0)
 	{
-		RenderSettingsModules(s_ScrollRegion, ViewLeft, vModules, ESettingsModuleColumn::LEFT, pSearch);
-		RenderSettingsModules(s_ScrollRegion, ViewRight, vModules, ESettingsModuleColumn::RIGHT, pSearch);
+		static CScrollRegion s_ScrollRegion;
+		CScrollRegionParams ScrollParams;
+		ScrollParams.m_ScrollUnit = 60.0f;
+		ScrollParams.m_ForceShowScrollbar = true;
+		ScrollParams.m_ScrollbarMargin = 5.0f;
+		s_ScrollRegion.Begin(&MainView, &ScrollParams);
+
+		std::vector<CSettingsModule> vModules;
+
+		CUIRect Label;
+
+		/* Gores Mode Extension */
+		vModules.push_back({
+			ESettingsModuleColumn::LEFT,
+			{"gores", "mode", "switch", "weapon", "hammer", "key", "toggle"},
+			[](bool HasSearch) {
+				return 75.0f;
+			},
+			[&](CUIRect ModuleRect, bool HasSearch) {
+				ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
+				ModuleRect.VMargin(Margin, &ModuleRect);
+
+				ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
+				Ui()->DoLabel(&Button, EcLocalize("Gores Mode"), HeaderSize, HeaderAlignment);
+
+				static CButtonContainer s_ReaderButtonGores, s_ClearButtonGores;
+				DoLine_KeyReader(ModuleRect, s_ReaderButtonGores, s_ClearButtonGores, EcLocalize("Toggle Gores Mode Key"), "toggle_gores_mode");
+			},
+		});
+
+		/* Spectate Extension */
+		vModules.push_back({
+			ESettingsModuleColumn::LEFT,
+			{"spectate", "spec", "pause", "team", "only", "filter"},
+			[](bool HasSearch) {
+				return 75.0f;
+			},
+			[&](CUIRect ModuleRect, bool HasSearch) {
+				ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
+				ModuleRect.VMargin(Margin, &ModuleRect);
+
+				ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
+				Ui()->DoLabel(&Button, EcLocalize("Spectate Settings"), HeaderSize, HeaderAlignment);
+
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClSpecTeamOnly, EcLocalize("Only Show Team Members in Spectator Mode"), &g_Config.m_ClSpecTeamOnly, &ModuleRect, LineSize);
+			},
+		});
+
+		/* Skin Stealer Extension */
+		vModules.push_back({
+			ESettingsModuleColumn::RIGHT,
+			{"skin", "steal", "copy", "closest", "player", "command", "bind"},
+			[](bool HasSearch) {
+				return 100.0f;
+			},
+			[&](CUIRect ModuleRect, bool HasSearch) {
+				ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
+				ModuleRect.VMargin(Margin, &ModuleRect);
+
+				ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
+				Ui()->DoLabel(&Button, EcLocalize("Skin Stealer"), HeaderSize, HeaderAlignment);
+
+				static CButtonContainer s_ReaderButtonSteal, s_ClearButtonSteal;
+				DoLine_KeyReader(ModuleRect, s_ReaderButtonSteal, s_ClearButtonSteal, EcLocalize("Steal Closest Skin Key"), "steal_skin");
+
+				static CButtonContainer s_CopyNowBtn;
+				ModuleRect.HSplitTop(LineSize, &Button, &ModuleRect);
+				if(DoButton_Menu(&s_CopyNowBtn, EcLocalize("Copy Skin From Closest Player Now"), 0, &Button))
+				{
+					GameClient()->m_EClient.StealSkin(nullptr);
+				}
+			},
+		});
+
+		/* Dummy Hammer Extension */
+		vModules.push_back({
+			ESettingsModuleColumn::RIGHT,
+			{"dummy", "hammer", "hook", "keep", "hammerfly", "key", "toggle"},
+			[](bool HasSearch) {
+				return 140.0f;
+			},
+			[&](CUIRect ModuleRect, bool HasSearch) {
+				ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
+				ModuleRect.VMargin(Margin, &ModuleRect);
+
+				ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
+				Ui()->DoLabel(&Button, EcLocalize("Dummy Hammer Settings"), HeaderSize, HeaderAlignment);
+
+				static CButtonContainer s_ReaderButtonDummyHammer, s_ClearButtonDummyHammer;
+				DoLine_KeyReader(ModuleRect, s_ReaderButtonDummyHammer, s_ClearButtonDummyHammer, EcLocalize("Toggle Dummy Hammer Key"), "toggle cl_dummy_hammer 0 1");
+
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClDummyHammerKeepHook, EcLocalize("Keep Hook Held While Hammering"), &g_Config.m_ClDummyHammerKeepHook, &ModuleRect, LineSize);
+
+				static CButtonContainer s_ReaderButtonKeepHook, s_ClearButtonKeepHook;
+				DoLine_KeyReader(ModuleRect, s_ReaderButtonKeepHook, s_ClearButtonKeepHook, EcLocalize("Toggle Keep Hook Key"), "toggle ec_dummy_hammer_keep_hook 0 1");
+			},
+		});
+
+		static CLineInputBuffered<32> s_VisualSearchInput;
+		RenderSettingsModuleSearchBar(s_ScrollRegion, MainView, vModules, s_VisualSearchInput);
+		MainView.HSplitTop(10.0f, nullptr, &MainView);
+
+		const char *pSearch = s_VisualSearchInput.GetString();
+
+		CUIRect ViewLeft, ViewRight;
+		MainView.VSplitMid(&ViewLeft, &ViewRight, 10.0f);
+
+		if(HasMatchingSettingsModules(vModules, pSearch))
+		{
+			RenderSettingsModules(s_ScrollRegion, ViewLeft, vModules, ESettingsModuleColumn::LEFT, pSearch);
+			RenderSettingsModules(s_ScrollRegion, ViewRight, vModules, ESettingsModuleColumn::RIGHT, pSearch);
+		}
+		else
+		{
+			CUIRect NoResultsRect;
+			MainView.HSplitTop(LineSize, &NoResultsRect, &MainView);
+			if(s_ScrollRegion.AddRect(NoResultsRect))
+				Ui()->DoLabel(&NoResultsRect, EcLocalize("No settings match your search"), FontSize, TEXTALIGN_MC);
+		}
+		s_ScrollRegion.End();
 	}
-	else
+	else if(s_CurExtensionTab == 1)
 	{
-		CUIRect NoResultsRect;
-		MainView.HSplitTop(LineSize, &NoResultsRect, &MainView);
-		if(s_ScrollRegion.AddRect(NoResultsRect))
-			Ui()->DoLabel(&NoResultsRect, EcLocalize("No settings match your search"), FontSize, TEXTALIGN_MC);
+		struct SCommandEntry
+		{
+			const char *m_pCategory;
+			const char *m_pCmd;
+			const char *m_pDesc;
+		};
+
+		static const SCommandEntry s_aCommands[] = {
+			// Extensions
+			{"扩展指令 (Custom)", "steal_skin", "窃取/复制最近玩家的皮肤及身体脚部颜色"},
+			{"扩展指令 (Custom)", "copy_skin", "steal_skin 的别名指令"},
+			{"扩展指令 (Custom)", "toggle_gores_mode", "一键快捷开启/关闭 Gores 自动切枪模式"},
+			{"扩展指令 (Custom)", "toggle ec_dummy_hammer_keep_hook 0 1", "快捷切换分身锤击时是否保持抓钩状态"},
+			{"扩展指令 (Custom)", "toggle cl_spec_team_only 0 1", "快捷切换观战/暂停时是否仅显示同队成员"},
+
+			// E-Client Commands
+			{"E-Client 指令", "bindwheel", "打开自定义快捷绑定轮盘"},
+			{"E-Client 指令", "playeractions", "打开目标玩家动作轮盘菜单"},
+			{"E-Client 指令", "save_skin", "将当前玩家外观临时保存至内存"},
+			{"E-Client 指令", "restore_skin", "从内存恢复之前保存的玩家外观"},
+			{"E-Client 指令", "online_info", "在控制台输出当前在线人数与信息"},
+			{"E-Client 指令", "player_info <name>", "查询指定玩家的信息"},
+			{"E-Client 指令", "ec_calc <expr>", "在控制台计算数学表达式"},
+
+			// DDNet / 原版基础控制
+			{"原版常用基础指令", "+fire", "开火 / 攻击"},
+			{"原版常用基础指令", "+hook", "发射抓钩 (Hook)"},
+			{"原版常用基础指令", "+jump", "跳跃"},
+			{"原版常用基础指令", "+show_hook_collision", "显示抓钩碰撞预瞄线"},
+			{"原版常用基础指令", "+weapon 1", "快速切换为 1 号武器 (锤子 Hammer)"},
+			{"原版常用基础指令", "+weapon 2", "快速切换为 2 号武器 (手枪 Gun)"},
+			{"原版常用基础指令", "+weapon 3", "快速切换为 3 号武器 (散弹枪 Shotgun)"},
+			{"原版常用基础指令", "+weapon 4", "快速切换为 4 号武器 (榴弹枪 Grenade)"},
+			{"原版常用基础指令", "+weapon 5", "快速切换为 5 号武器 (激光枪 Laser)"},
+			{"原版常用基础指令", "+nextweapon", "切换为下一把武器"},
+			{"原版常用基础指令", "+prevweapon", "切换为上一把武器"},
+			{"原版常用基础指令", "kill", "自杀重开"},
+			{"原版常用基础指令", "say <text>", "发送公屏聊天消息"},
+			{"原版常用基础指令", "say_team <text>", "发送队内聊天消息"},
+			{"原版常用基础指令", "say /pause", "发送 /pause 暂停指令"},
+			{"原版常用基础指令", "say /spec", "发送 /spec 观战指令"},
+
+			// 分身与 Dummy 指令
+			{"Dummy 分身控制指令", "toggle cl_dummy 0 1", "切换控制本体 (0) 或控制分身 (1)"},
+			{"Dummy 分身控制指令", "toggle cl_dummy_hammer 0 1", "切换分身自动锤击模式 (Hammerfly)"},
+			{"Dummy 分身控制指令", "toggle cl_dummy_copy_moves 0 1", "切换分身是否同步复制本体动作"},
+			{"Dummy 分身控制指令", "toggle cl_dummy_control 0 1", "启用分身多键独立控制模式"},
+			{"Dummy 分身控制指令", "+dummy_fire", "命令分身开火/锤击 (需开启 cl_dummy_control)"},
+			{"Dummy 分身控制指令", "+dummy_hook", "命令分身发射抓钩 (需开启 cl_dummy_control)"},
+			{"Dummy 分身控制指令", "+dummy_jump", "命令分身跳跃 (需开启 cl_dummy_control)"},
+		};
+
+		static CLineInputBuffered<64> s_CmdSearchInput;
+		CUIRect SearchBar, ListRect, HintRect;
+		MainView.HSplitTop(28.0f, &SearchBar, &MainView);
+		SearchBar.VMargin(Margin, &SearchBar);
+		s_CmdSearchInput.SetEmptyText(EcLocalize("Search"));
+		Ui()->DoClearableEditBox(&s_CmdSearchInput, &SearchBar, EditBoxFontSize);
+
+		MainView.HSplitTop(6.0f, nullptr, &MainView);
+		MainView.HSplitBottom(24.0f, &ListRect, &HintRect);
+		HintRect.VMargin(Margin, &HintRect);
+		Ui()->DoLabel(&HintRect, EcLocalize("💡 提示：点击任意指令右侧的「复制」按钮即可快速复制到剪贴板，方便在 F1 控制台进行 bind 绑定"), FontSize - 1.0f, TEXTALIGN_ML);
+
+		const char *pSearch = s_CmdSearchInput.GetString();
+		std::vector<const SCommandEntry *> vpFiltered;
+		for(const auto &Cmd : s_aCommands)
+		{
+			if(pSearch[0] != '\0')
+			{
+				if(!str_utf8_find_nocase(Cmd.m_pCmd, pSearch) &&
+				   !str_utf8_find_nocase(Cmd.m_pDesc, pSearch) &&
+				   !str_utf8_find_nocase(Cmd.m_pCategory, pSearch))
+					continue;
+			}
+			vpFiltered.push_back(&Cmd);
+		}
+
+		static CListBox s_CmdListBox;
+		s_CmdListBox.DoStart(30.0f, vpFiltered.size(), 1, 1, -1, &ListRect, true, IGraphics::CORNER_ALL, true);
+
+		static bool s_aSelectedItems[1024];
+		static CButtonContainer s_aCopyButtons[1024];
+
+		for(size_t i = 0; i < vpFiltered.size(); ++i)
+		{
+			const SCommandEntry *pItem = vpFiltered[i];
+			CListboxItem Item = s_CmdListBox.DoNextItem(&s_aSelectedItems[i], false);
+			if(!Item.m_Visible)
+				continue;
+
+			CUIRect Row = Item.m_Rect;
+			Row.VMargin(MarginSmall, &Row);
+
+			CUIRect CategoryRect, CmdRect, DescRect, CopyBtnRect;
+			Row.VSplitLeft(160.0f, &CategoryRect, &Row);
+			Row.VSplitLeft(260.0f, &CmdRect, &Row);
+			Row.VSplitRight(60.0f, &DescRect, &CopyBtnRect);
+			CopyBtnRect.HMargin(2.0f, &CopyBtnRect);
+
+			TextRender()->TextColor(ColorRGBA(0.4f, 0.8f, 1.0f, 1.0f));
+			Ui()->DoLabel(&CategoryRect, pItem->m_pCategory, FontSize - 1.0f, TEXTALIGN_ML);
+
+			TextRender()->TextColor(ColorRGBA(1.0f, 0.9f, 0.4f, 1.0f));
+			Ui()->DoLabel(&CmdRect, pItem->m_pCmd, FontSize, TEXTALIGN_ML);
+
+			TextRender()->TextColor(TextRender()->DefaultTextColor());
+			Ui()->DoLabel(&DescRect, pItem->m_pDesc, FontSize - 1.0f, TEXTALIGN_ML);
+
+			if(DoButton_Menu(&s_aCopyButtons[i], EcLocalize("复制"), 0, &CopyBtnRect))
+			{
+				Client()->SetClipboardText(pItem->m_pCmd);
+				char aMsg[256];
+				str_format(aMsg, sizeof(aMsg), "已复制指令: %s", pItem->m_pCmd);
+				GameClient()->ClientMessage(aMsg);
+			}
+		}
+		s_CmdListBox.DoEnd();
 	}
-	s_ScrollRegion.End();
 }
 
 void CMenus::RenderSettingsEClient(CUIRect MainView)
@@ -2970,6 +3137,27 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 		},
 	});
 #endif
+
+	/* Gores Mode */
+	vModules.push_back({
+		ESettingsModuleColumn::RIGHT,
+		{"gores", "mode", "advanced", "disable", "weapons", "automation", "enable", "gametype"},
+		[](bool HasSearch) {
+			return 100.0f;
+		},
+		[&](CUIRect ModuleRect, bool HasSearch) {
+			ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
+			ModuleRect.VMargin(Margin, &ModuleRect);
+
+			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
+			Ui()->DoLabel(&Button, EcLocalize("Gores Mode"), HeaderSize, HeaderAlignment);
+
+			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClGoresMode, EcLocalize("\"advanced\" Gores Mode"), &g_Config.m_ClGoresMode, &ModuleRect, LineSize);
+
+			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClGoresModeDisableIfWeapons, EcLocalize("Disable if You Have Any Weapon"), &g_Config.m_ClGoresModeDisableIfWeapons, &ModuleRect, LineSize);
+			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClAutoEnableGoresMode, EcLocalize("Auto Enable if Gametype is \"Gores\""), &g_Config.m_ClAutoEnableGoresMode, &ModuleRect, LineSize);
+		},
+	});
 
 	/* Fast Input */
 	vModules.push_back({

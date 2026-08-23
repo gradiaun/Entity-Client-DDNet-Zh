@@ -133,6 +133,7 @@ public:
 
 	int64_t m_RainbowDelay;
 
+	bool m_HadExtraWeapons = false;
 	void GoresMode();
 
 	int64_t m_JoinTeam;
