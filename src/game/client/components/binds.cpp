@@ -142,9 +142,9 @@ bool CBinds::OnInput(const IInput::CEvent &Event)
 						m_MouseOnAction = true;
 					}
 				}
-				if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire") && !str_find(aBind, "+weapon 1"))
+				if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire") && !str_find(aBind, "+weapon1"))
 				{
-					str_append(aBind, ";+weapon 1", sizeof(aBind));
+					str_append(aBind, ";+weapon1", sizeof(aBind));
 				}
 
 				Console()->ExecuteLineStroked(1, aBind, IConsole::CLIENT_ID_UNSPECIFIED);
@@ -172,9 +172,9 @@ bool CBinds::OnInput(const IInput::CEvent &Event)
 			{
 				char aBind[512];
 				str_copy(aBind, m_aapKeyBindings[ActiveBind->m_ModifierMask][ActiveBind->m_Key], sizeof(aBind));
-				if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire") && !str_find(aBind, "+weapon 1"))
+				if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire") && !str_find(aBind, "+weapon1"))
 				{
-					str_append(aBind, ";+weapon 1", sizeof(aBind));
+					str_append(aBind, ";+weapon1", sizeof(aBind));
 				}
 
 				Console()->ExecuteLineStroked(1, aBind, IConsole::CLIENT_ID_UNSPECIFIED);
@@ -201,9 +201,9 @@ bool CBinds::OnInput(const IInput::CEvent &Event)
 			}
 			char aBind[512];
 			str_copy(aBind, m_aapKeyBindings[Bind.m_ModifierMask][Bind.m_Key], sizeof(aBind));
-			if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire") && !str_find(aBind, "+weapon 1"))
+			if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire") && !str_find(aBind, "+weapon1"))
 			{
-				str_append(aBind, ";+weapon 1", sizeof(aBind));
+				str_append(aBind, ";+weapon1", sizeof(aBind));
 			}
 
 			Console()->ExecuteLineStroked(0, aBind, IConsole::CLIENT_ID_UNSPECIFIED);
