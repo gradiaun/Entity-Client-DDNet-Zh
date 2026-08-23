@@ -760,6 +760,7 @@ public:
 		SETTINGS_DDNET,
 		SETTINGS_ASSETS,
 		SETTINGS_ENTITY,
+		SETTINGS_EXTENSIONS,
 		SETTINGS_SKINPROFILES,
 
 		SETTINGS_LENGTH,
@@ -914,6 +915,7 @@ private:
 	// EClient
 	void RenderChatPreview(CUIRect MainView);
 	void RenderSettingsEntity(CUIRect MainView);
+	void RenderSettingsExtensions(CUIRect MainView);
 	void RenderSettingsEClient(CUIRect MainView);
 	void RenderSettingsWarList(CUIRect MainView);
 	void RenderSettingsProfiles(CUIRect MainView);

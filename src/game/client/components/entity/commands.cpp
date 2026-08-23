@@ -175,6 +175,73 @@ void CEClient::ConRestoreSkin(IConsole::IResult *pResult, void *pUserData)
 	pSelf->RestoreSkin();
 }
 
+void CEClient::StealSkin(const char *pName)
+{
+	int TargetId = -1;
+	if(pName && pName[0] != '\0')
+	{
+		TargetId = GameClient()->GetClientId(pName);
+		if(TargetId < 0)
+		{
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "Could not find player \"%s\"", pName);
+			GameClient()->ClientMessage(aBuf);
+			return;
+		}
+	}
+	else
+	{
+		vec2 MyPos = vec2(0.0f, 0.0f);
+		int LocalId = GameClient()->m_Snap.m_LocalClientId;
+		if(LocalId >= 0 && GameClient()->m_aClients[LocalId].m_Active)
+			MyPos = GameClient()->m_aClients[LocalId].m_RenderPos;
+		else
+			MyPos = GameClient()->m_Camera.m_Center;
+
+		TargetId = GameClient()->m_PlayerActions.GetClosestClientId(MyPos);
+		if(TargetId < 0 || TargetId == LocalId)
+		{
+			GameClient()->ClientMessage("No nearby players found to copy skin from.");
+			return;
+		}
+	}
+
+	const auto &Target = GameClient()->m_aClients[TargetId];
+	if(!Target.m_Active)
+	{
+		GameClient()->ClientMessage("Target player is invalid or inactive.");
+		return;
+	}
+
+	if(g_Config.m_ClDummy)
+	{
+		str_copy(g_Config.m_ClDummySkin, Target.m_aSkinName, sizeof(g_Config.m_ClDummySkin));
+		g_Config.m_ClDummyUseCustomColor = Target.m_UseCustomColor;
+		g_Config.m_ClDummyColorBody = Target.m_ColorBody;
+		g_Config.m_ClDummyColorFeet = Target.m_ColorFeet;
+		GameClient()->SendDummyInfo(false);
+	}
+	else
+	{
+		str_copy(g_Config.m_ClPlayerSkin, Target.m_aSkinName, sizeof(g_Config.m_ClPlayerSkin));
+		g_Config.m_ClPlayerUseCustomColor = Target.m_UseCustomColor;
+		g_Config.m_ClPlayerColorBody = Target.m_ColorBody;
+		g_Config.m_ClPlayerColorFeet = Target.m_ColorFeet;
+		GameClient()->SendInfo(false);
+	}
+
+	char aMsg[128];
+	str_format(aMsg, sizeof(aMsg), "Copied skin from \"%s\" (%s)", Target.m_aName, Target.m_aSkinName);
+	GameClient()->ClientMessage(aMsg);
+}
+
+void CEClient::ConStealSkin(IConsole::IResult *pResult, void *pUserData)
+{
+	CEClient *pSelf = (CEClient *)pUserData;
+	const char *pName = pResult->NumArguments() > 0 ? pResult->GetString(0) : nullptr;
+	pSelf->StealSkin(pName);
+}
+
 void CEClient::ConOnlineInfo(IConsole::IResult *pResult, void *pUserData)
 {
 	CEClient *pSelf = (CEClient *)pUserData;
@@ -544,6 +611,8 @@ void CEClient::OnConsoleInit()
 	// Skin Saving/Restoing
 	Console()->Register("restoreskin", "", CFGFLAG_CLIENT, ConRestoreSkin, this, "Restore Your Saved Info");
 	Console()->Register("saveskin", "", CFGFLAG_CLIENT, ConSaveSkin, this, "Save Your Current Info (Skin, name, etc.)");
+	Console()->Register("steal_skin", "?s[name]", CFGFLAG_CLIENT, ConStealSkin, this, "Copy skin and colors from the closest player or specified player");
+	Console()->Register("copy_skin", "?s[name]", CFGFLAG_CLIENT, ConStealSkin, this, "Alias for steal_skin");
 
 	// View Link
 	Console()->Register("view_link", "r[url]", CFGFLAG_CLIENT, ConViewLink, this, "Opens a new Browser tab with that Link");

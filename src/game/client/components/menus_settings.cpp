@@ -52,6 +52,7 @@ void CMenus::RenderSettings(CUIRect MainView)
 		Localize("DDNet"),
 		Localize("Assets"),
 		("E-Client"),
+		Localize("Extensions"),
 		("Profiles")};
 
 	static CButtonContainer s_aTabButtons[SETTINGS_LENGTH];
@@ -121,6 +122,11 @@ void CMenus::RenderSettings(CUIRect MainView)
 	{
 		GameClient()->m_MenuBackground.ChangePosition(CMenuBackground::POS_SETTINGS_ENTITY);
 		RenderSettingsEntity(MainView);
+	}
+	else if(g_Config.m_UiSettingsPage == SETTINGS_EXTENSIONS)
+	{
+		GameClient()->m_MenuBackground.ChangePosition(CMenuBackground::POS_SETTINGS_EXTENSIONS);
+		RenderSettingsExtensions(MainView);
 	}
 	else if(g_Config.m_UiSettingsPage == SETTINGS_SKINPROFILES)
 	{

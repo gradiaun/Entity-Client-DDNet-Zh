@@ -2548,6 +2548,110 @@ void CMenus::RenderSettingsProfiles(CUIRect MainView)
 	Ui()->DoLabel(&Tater, "© Tater", 14.0f, TEXTALIGN_ML);
 }
 
+void CMenus::RenderSettingsExtensions(CUIRect MainView)
+{
+	static CScrollRegion s_ScrollRegion;
+	CScrollRegionParams ScrollParams;
+	ScrollParams.m_ScrollUnit = 60.0f;
+	ScrollParams.m_ForceShowScrollbar = true;
+	ScrollParams.m_ScrollbarMargin = 5.0f;
+	s_ScrollRegion.Begin(&MainView, &ScrollParams);
+
+	std::vector<CSettingsModule> vModules;
+
+	CUIRect Label, Button;
+
+	/* Gores Mode Extension */
+	vModules.push_back({
+		ESettingsModuleColumn::LEFT,
+		{"gores", "mode", "switch", "weapon", "hammer", "key", "auto", "toggle"},
+		[](bool HasSearch) {
+			return 140.0f;
+		},
+		[&](CUIRect ModuleRect, bool HasSearch) {
+			ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
+			ModuleRect.VMargin(Margin, &ModuleRect);
+
+			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
+			Ui()->DoLabel(&Button, EcLocalize("Gores Mode"), HeaderSize, HeaderAlignment);
+
+			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClGoresMode, EcLocalize("\"advanced\" Gores Mode"), &g_Config.m_ClGoresMode, &ModuleRect, LineSize);
+			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClGoresModeDisableIfWeapons, EcLocalize("Disable if You Have Any Weapon"), &g_Config.m_ClGoresModeDisableIfWeapons, &ModuleRect, LineSize);
+			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClAutoEnableGoresMode, EcLocalize("Auto Enable if Gametype is \"Gores\""), &g_Config.m_ClAutoEnableGoresMode, &ModuleRect, LineSize);
+
+			static CButtonContainer s_ReaderButtonGores, s_ClearButtonGores;
+			DoLine_KeyReader(ModuleRect, s_ReaderButtonGores, s_ClearButtonGores, EcLocalize("Toggle Gores Mode Key"), "toggle_gores_mode");
+		},
+	});
+
+	/* Spectate Extension */
+	vModules.push_back({
+		ESettingsModuleColumn::LEFT,
+		{"spectate", "spec", "pause", "team", "only", "filter"},
+		[](bool HasSearch) {
+			return 75.0f;
+		},
+		[&](CUIRect ModuleRect, bool HasSearch) {
+			ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
+			ModuleRect.VMargin(Margin, &ModuleRect);
+
+			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
+			Ui()->DoLabel(&Button, EcLocalize("Spectate Settings"), HeaderSize, HeaderAlignment);
+
+			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClSpecTeamOnly, EcLocalize("Only Show Team Members in Spectator Mode"), &g_Config.m_ClSpecTeamOnly, &ModuleRect, LineSize);
+		},
+	});
+
+	/* Skin Stealer Extension */
+	vModules.push_back({
+		ESettingsModuleColumn::RIGHT,
+		{"skin", "steal", "copy", "closest", "player", "command", "bind"},
+		[](bool HasSearch) {
+			return 100.0f;
+		},
+		[&](CUIRect ModuleRect, bool HasSearch) {
+			ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
+			ModuleRect.VMargin(Margin, &ModuleRect);
+
+			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
+			Ui()->DoLabel(&Button, EcLocalize("Skin Stealer"), HeaderSize, HeaderAlignment);
+
+			static CButtonContainer s_ReaderButtonSteal, s_ClearButtonSteal;
+			DoLine_KeyReader(ModuleRect, s_ReaderButtonSteal, s_ClearButtonSteal, EcLocalize("Steal Closest Skin Key"), "steal_skin");
+
+			static CButtonContainer s_CopyNowBtn;
+			ModuleRect.HSplitTop(LineSize, &Button, &ModuleRect);
+			if(DoButton_Menu(&s_CopyNowBtn, EcLocalize("Copy Skin From Closest Player Now"), 0, &Button))
+			{
+				GameClient()->m_EClient.StealSkin(nullptr);
+			}
+		},
+	});
+
+	static CLineInputBuffered<32> s_VisualSearchInput;
+	RenderSettingsModuleSearchBar(s_ScrollRegion, MainView, vModules, s_VisualSearchInput);
+	MainView.HSplitTop(10.0f, nullptr, &MainView);
+
+	const char *pSearch = s_VisualSearchInput.GetString();
+
+	CUIRect ViewLeft, ViewRight;
+	MainView.VSplitMid(&ViewLeft, &ViewRight, 10.0f);
+
+	if(HasMatchingSettingsModules(vModules, pSearch))
+	{
+		RenderSettingsModules(s_ScrollRegion, ViewLeft, vModules, ESettingsModuleColumn::LEFT, pSearch);
+		RenderSettingsModules(s_ScrollRegion, ViewRight, vModules, ESettingsModuleColumn::RIGHT, pSearch);
+	}
+	else
+	{
+		CUIRect NoResultsRect;
+		MainView.HSplitTop(LineSize, &NoResultsRect, &MainView);
+		if(s_ScrollRegion.AddRect(NoResultsRect))
+			Ui()->DoLabel(&NoResultsRect, EcLocalize("No settings match your search"), FontSize, TEXTALIGN_MC);
+	}
+	s_ScrollRegion.End();
+}
+
 void CMenus::RenderSettingsEClient(CUIRect MainView)
 {
 	static CScrollRegion s_ScrollRegion;
@@ -2623,22 +2727,22 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 				// group em up
 				{
 					std::array<float, 2> Sizes = {
-						TextRender()->TextBoundingBox(FontSize, "Tabbed reply").m_W,
-						TextRender()->TextBoundingBox(FontSize, "Muted Reply").m_W};
+						TextRender()->TextBoundingBox(FontSize, EcLocalize("Tabbed reply")).m_W,
+						TextRender()->TextBoundingBox(FontSize, EcLocalize("Muted Reply")).m_W};
 					float Length = *std::max_element(Sizes.begin(), Sizes.end()) + 23.5f;
 
 					static CLineInput s_TabbedReplyMsg;
-					RenderToggleEditBox("Tabbed reply", &g_Config.m_ClTabbedOutMsg, &s_TabbedReplyMsg, g_Config.m_ClAutoReplyMsg, sizeof(g_Config.m_ClAutoReplyMsg), "I'm Currently Tabbed Out", Length);
+					RenderToggleEditBox(EcLocalize("Tabbed reply"), &g_Config.m_ClTabbedOutMsg, &s_TabbedReplyMsg, g_Config.m_ClAutoReplyMsg, sizeof(g_Config.m_ClAutoReplyMsg), "I'm Currently Tabbed Out", Length);
 					ModuleRect.HSplitTop(21.0f, &Button, &ModuleRect);
 
 					static CLineInput s_MutedReplyMsg;
-					RenderToggleEditBox("Muted Reply", &g_Config.m_ClReplyMuted, &s_MutedReplyMsg, g_Config.m_ClAutoReplyMutedMsg, sizeof(g_Config.m_ClAutoReplyMutedMsg), "You're muted, I can't see your messages", Length);
+					RenderToggleEditBox(EcLocalize("Muted Reply"), &g_Config.m_ClReplyMuted, &s_MutedReplyMsg, g_Config.m_ClAutoReplyMutedMsg, sizeof(g_Config.m_ClAutoReplyMutedMsg), "You're muted, I can't see your messages", Length);
 				}
 				ModuleRect.HSplitTop(25.0f, &Button, &ModuleRect);
 
 				{
-					const char *Name = g_Config.m_ClNotifyOnJoin ? "Notify on Join Name" : "Notify on Join";
-					float Length = TextRender()->TextBoundingBox(FontSize, "Notify on Join Name").m_W + 16.5f; // Give it some breathing room
+					const char *Name = g_Config.m_ClNotifyOnJoin ? EcLocalize("Notify on Join Name") : EcLocalize("Notify on Join");
+					float Length = TextRender()->TextBoundingBox(FontSize, EcLocalize("Notify on Join Name")).m_W + 16.5f; // Give it some breathing room
 
 					static CLineInput s_NotifyName;
 					RenderToggleEditBox(Name, &g_Config.m_ClNotifyOnJoin, &s_NotifyName, g_Config.m_ClAutoNotifyName, sizeof(g_Config.m_ClAutoNotifyName), "qxdFox", Length);
@@ -2646,16 +2750,16 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 
 				if(g_Config.m_ClNotifyOnJoin || HasSearch)
 				{
-					float Length = TextRender()->TextBoundingBox(12.5f, "Notify Message").m_W + 3.5f; // Give it some breathing room
+					float Length = TextRender()->TextBoundingBox(12.5f, EcLocalize("Notify Message")).m_W + 3.5f; // Give it some breathing room
 
 					ModuleRect.HSplitTop(21.0f, &Button, &ModuleRect);
 
 					static CLineInput s_NotifyMsg;
-					RenderLabeledEditBox("Notify Message", &s_NotifyMsg, g_Config.m_ClAutoNotifyMsg, sizeof(g_Config.m_ClAutoNotifyMsg), "Your Fav Person Has Joined!", Length);
+					RenderLabeledEditBox(EcLocalize("Notify Message"), &s_NotifyMsg, g_Config.m_ClAutoNotifyMsg, sizeof(g_Config.m_ClAutoNotifyMsg), "Your Fav Person Has Joined!", Length);
 				}
 				ModuleRect.HSplitTop(25.0f, &Button, &ModuleRect);
 				{
-					const char *pN = "Execute before connect";
+					const char *pN = EcLocalize("Execute before connect");
 					float Length = TextRender()->TextBoundingBox(12.5f, pN).m_W + 3.5f; // Give it some breathing room
 
 					static CLineInput s_ReplyMsg;
@@ -2663,7 +2767,7 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 				}
 				ModuleRect.HSplitTop(25.0f, &Button, &ModuleRect);
 				{
-					const char *pN = "Execute on join";
+					const char *pN = EcLocalize("Execute on join");
 					float Length = TextRender()->TextBoundingBox(12.5f, pN).m_W + 3.5f; // Give it some breathing room
 
 					static CLineInput s_ReplyMsg;
@@ -2747,25 +2851,25 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
 			Ui()->DoLabel(&Button, EcLocalize("Chat Settings"), HeaderSize, HeaderAlignment);
 			{
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClChatBubble, ("Show Chat Bubble"), &g_Config.m_ClChatBubble, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClChatBubble, EcLocalize("Show Chat Bubble"), &g_Config.m_ClChatBubble, &ModuleRect, LineSize);
 				ModuleRect.HSplitTop(2.5f, &Button, &ModuleRect);
 
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClShowMutedInConsole, ("Show Messages of Muted People in The Console"), &g_Config.m_ClShowMutedInConsole, &ModuleRect, LineSize);
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClHideEnemyChat, ("Hide Enemy Chat (Shows in Console)"), &g_Config.m_ClHideEnemyChat, &ModuleRect, LineSize);
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClShowIdsChat, ("Show Client Ids in Chat"), &g_Config.m_ClShowIdsChat, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClShowMutedInConsole, EcLocalize("Show Messages of Muted People in The Console"), &g_Config.m_ClShowMutedInConsole, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClHideEnemyChat, EcLocalize("Hide Enemy Chat (Shows in Console)"), &g_Config.m_ClHideEnemyChat, &ModuleRect, LineSize);
+				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClShowIdsChat, EcLocalize("Show Client Ids in Chat"), &g_Config.m_ClShowIdsChat, &ModuleRect, LineSize);
 				ModuleRect.HSplitTop(LineSize, &Button, &ModuleRect);
-				if(DoButton_CheckBox(&g_Config.m_ClChatMath, ("Suggest Math Results in Chat"), g_Config.m_ClChatMath, &Button))
+				if(DoButton_CheckBox(&g_Config.m_ClChatMath, EcLocalize("Suggest Math Results in Chat"), g_Config.m_ClChatMath, &Button))
 					g_Config.m_ClChatMath ^= 1;
 				GameClient()->m_Tooltips.DoToolTip(&g_Config.m_ClChatMath, &Button, "End a message with '=' to get the result suggested, press Tab to insert it");
 
 				ModuleRect.HSplitTop(-10.0f, &Button, &ModuleRect);
 
 				std::array<float, 5> Sizes = {
-					TextRender()->TextBoundingBox(FontSize, "Friend Prefix").m_W,
-					TextRender()->TextBoundingBox(FontSize, "Spec Prefix").m_W,
-					TextRender()->TextBoundingBox(FontSize, "Server Prefix").m_W,
-					TextRender()->TextBoundingBox(FontSize, "Client Prefix").m_W,
-					TextRender()->TextBoundingBox(FontSize, "Warlist Prefix").m_W,
+					TextRender()->TextBoundingBox(FontSize, EcLocalize("Friend Prefix")).m_W,
+					TextRender()->TextBoundingBox(FontSize, EcLocalize("Spec Prefix")).m_W,
+					TextRender()->TextBoundingBox(FontSize, EcLocalize("Server Prefix")).m_W,
+					TextRender()->TextBoundingBox(FontSize, EcLocalize("Client Prefix")).m_W,
+					TextRender()->TextBoundingBox(FontSize, EcLocalize("Warlist Prefix")).m_W,
 				};
 				float Length = *std::max_element(Sizes.begin(), Sizes.end()) + 20.0f;
 
@@ -2788,19 +2892,19 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 				};
 
 				static CLineInput s_FriendInput;
-				RenderPrefixOption(&s_FriendInput, "Friend Prefix", &g_Config.m_ClMessageFriend, g_Config.m_ClFriendPrefix, "alt3");
+				RenderPrefixOption(&s_FriendInput, EcLocalize("Friend Prefix"), &g_Config.m_ClMessageFriend, g_Config.m_ClFriendPrefix, "alt3");
 
 				static CLineInput s_SpecInput;
-				RenderPrefixOption(&s_SpecInput, "Spec Prefix", &g_Config.m_ClSpectatePrefix, g_Config.m_ClSpecPrefix, "alt7");
+				RenderPrefixOption(&s_SpecInput, EcLocalize("Spec Prefix"), &g_Config.m_ClSpectatePrefix, g_Config.m_ClSpecPrefix, "alt7");
 
 				static CLineInput s_ServerInput;
-				RenderPrefixOption(&s_ServerInput, "Server Prefix", &g_Config.m_ClChatServerPrefix, g_Config.m_ClServerPrefix, "*** ");
+				RenderPrefixOption(&s_ServerInput, EcLocalize("Server Prefix"), &g_Config.m_ClChatServerPrefix, g_Config.m_ClServerPrefix, "*** ");
 
 				static CLineInput s_ClientInput;
-				RenderPrefixOption(&s_ClientInput, "Client Prefix", &g_Config.m_ClChatClientPrefix, g_Config.m_ClClientPrefix, "alt0151");
+				RenderPrefixOption(&s_ClientInput, EcLocalize("Client Prefix"), &g_Config.m_ClChatClientPrefix, g_Config.m_ClClientPrefix, "alt0151");
 
 				static CLineInput s_WarlistInput;
-				RenderPrefixOption(&s_WarlistInput, "Warlist Prefix", &g_Config.m_ClWarlistPrefixes, g_Config.m_ClWarlistPrefix, "alt4");
+				RenderPrefixOption(&s_WarlistInput, EcLocalize("Warlist Prefix"), &g_Config.m_ClWarlistPrefixes, g_Config.m_ClWarlistPrefix, "alt4");
 
 				ModuleRect.HSplitTop(55.0f, &Button, &ModuleRect);
 				Ui()->DoLabel(&Button, EcLocalize("Chat Preview"), FontSize + 3, TEXTALIGN_ML);
@@ -2855,10 +2959,10 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
 			Ui()->DoLabel(&Button, EcLocalize("Performance"), HeaderSize, HeaderAlignment);
 
-			if(DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClHighProcessPriority, ("High DDNet Process Priority"), &g_Config.m_ClHighProcessPriority, &ModuleRect, LineSize))
+			if(DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClHighProcessPriority, EcLocalize("High DDNet Process Priority"), &g_Config.m_ClHighProcessPriority, &ModuleRect, LineSize))
 				GameClient()->m_EClient.SetDDNetProcessPriority(g_Config.m_ClHighProcessPriority);
 
-			if(DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClDiscordNormalProcessPriority, ("Lower Discords Process Priority"), &g_Config.m_ClDiscordNormalProcessPriority, &ModuleRect, LineSize))
+			if(DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClDiscordNormalProcessPriority, EcLocalize("Lower Discords Process Priority"), &g_Config.m_ClDiscordNormalProcessPriority, &ModuleRect, LineSize))
 			{
 				if(g_Config.m_ClDiscordNormalProcessPriority)
 					GameClient()->m_EClient.StartDiscordPriorityThread();
@@ -2866,27 +2970,6 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 		},
 	});
 #endif
-
-	/* Gores Mode */
-	vModules.push_back({
-		ESettingsModuleColumn::RIGHT,
-		{"gores", "mode", "advanced", "disable", "weapons", "automation", "enable", "gametype"},
-		[](bool HasSearch) {
-			return 100.0f;
-		},
-		[&](CUIRect ModuleRect, bool HasSearch) {
-			ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
-			ModuleRect.VMargin(Margin, &ModuleRect);
-
-			ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
-			Ui()->DoLabel(&Button, EcLocalize("Gores Mode"), HeaderSize, HeaderAlignment);
-
-			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClGoresMode, EcLocalize("\"advanced\" Gores Mode"), &g_Config.m_ClGoresMode, &ModuleRect, LineSize);
-
-			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClGoresModeDisableIfWeapons, EcLocalize("Disable if You Have Any Weapon"), &g_Config.m_ClGoresModeDisableIfWeapons, &ModuleRect, LineSize);
-			DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClAutoEnableGoresMode, EcLocalize("Auto Enable if Gametype is \"Gores\""), &g_Config.m_ClAutoEnableGoresMode, &ModuleRect, LineSize);
-		},
-	});
 
 	/* Fast Input */
 	vModules.push_back({
@@ -2964,8 +3047,6 @@ void CMenus::RenderSettingsEClient(CUIRect MainView)
 				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClSpecMenuFriendColor, EcLocalize("Friend Color in Spectate Menu"), &g_Config.m_ClSpecMenuFriendColor, &ModuleRect, LineSize);
 
 				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClSpecMenuPrefixes, EcLocalize("Player Prefixes in Spectate Menu"), &g_Config.m_ClSpecMenuPrefixes, &ModuleRect, LineSize);
-
-				DoButton_CheckBoxAutoVMarginAndSet(&g_Config.m_ClSpecTeamOnly, EcLocalize("Only Show Team Members in Spectator Mode"), &g_Config.m_ClSpecTeamOnly, &ModuleRect, LineSize);
 			}
 		},
 	});

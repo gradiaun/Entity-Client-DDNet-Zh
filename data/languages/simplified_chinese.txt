@@ -3576,3 +3576,21 @@ Auto Enable if Gametype is "Gores"
 
 Only Show Team Members in Spectator Mode
 == 观战/暂停时仅显示同队成员
+
+Extensions
+== 扩展
+
+Toggle Gores Mode Key
+== 切换 Gores 模式按键
+
+Spectate Settings
+== 观战与旁观设置
+
+Skin Stealer
+== 皮肤窃取 (Skin Stealer)
+
+Steal Closest Skin Key
+== 快捷键：窃取最近玩家皮肤
+
+Copy Skin From Closest Player Now
+== 立即复制最近玩家的皮肤

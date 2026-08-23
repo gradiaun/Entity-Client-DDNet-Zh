@@ -60,6 +60,8 @@ class CEClient : public CComponent
 
 	static void ConToggleGoresMode(IConsole::IResult *pResult, void *pUserData);
 
+	static void ConStealSkin(IConsole::IResult *pResult, void *pUserData);
+
 	static void ConViewLink(IConsole::IResult *pResult, void *pUserData);
 
 	static void ConSetDeathCounter(IConsole::IResult *pResult, void *pUserData);
@@ -93,6 +95,7 @@ public:
 
 	void SaveSkin();
 	void RestoreSkin();
+	void StealSkin(const char *pName = nullptr);
 	void OnlineInfo();
 
 	// Movement Notification if tabbed out
