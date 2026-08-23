@@ -2809,7 +2809,7 @@ void CMenus::RenderSettingsExtensions(CUIRect MainView)
 
 			if(DoButton_Menu(&s_aCopyButtons[i], EcLocalize("复制"), 0, &CopyBtnRect))
 			{
-				Client()->SetClipboardText(pItem->m_pCmd);
+				Input()->SetClipboardText(pItem->m_pCmd);
 				char aMsg[256];
 				str_format(aMsg, sizeof(aMsg), "已复制指令: %s", pItem->m_pCmd);
 				GameClient()->ClientMessage(aMsg);
