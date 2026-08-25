@@ -144,7 +144,9 @@ bool CBinds::OnInput(const IInput::CEvent &Event)
 				}
 				if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire") && !str_find(aBind, "+weapon1"))
 				{
-					str_append(aBind, ";+weapon1", sizeof(aBind));
+					char aTemp[512];
+					str_format(aTemp, sizeof(aTemp), "+weapon1;%s", aBind);
+					str_copy(aBind, aTemp, sizeof(aBind));
 				}
 
 				Console()->ExecuteLineStroked(1, aBind, IConsole::CLIENT_ID_UNSPECIFIED);
@@ -174,7 +176,9 @@ bool CBinds::OnInput(const IInput::CEvent &Event)
 				str_copy(aBind, m_aapKeyBindings[ActiveBind->m_ModifierMask][ActiveBind->m_Key], sizeof(aBind));
 				if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire") && !str_find(aBind, "+weapon1"))
 				{
-					str_append(aBind, ";+weapon1", sizeof(aBind));
+					char aTemp[512];
+					str_format(aTemp, sizeof(aTemp), "+weapon1;%s", aBind);
+					str_copy(aBind, aTemp, sizeof(aBind));
 				}
 
 				Console()->ExecuteLineStroked(1, aBind, IConsole::CLIENT_ID_UNSPECIFIED);
@@ -203,7 +207,9 @@ bool CBinds::OnInput(const IInput::CEvent &Event)
 			str_copy(aBind, m_aapKeyBindings[Bind.m_ModifierMask][Bind.m_Key], sizeof(aBind));
 			if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire") && !str_find(aBind, "+weapon1"))
 			{
-				str_append(aBind, ";+weapon1", sizeof(aBind));
+				char aTemp[512];
+				str_format(aTemp, sizeof(aTemp), "+weapon1;%s", aBind);
+				str_copy(aBind, aTemp, sizeof(aBind));
 			}
 
 			Console()->ExecuteLineStroked(0, aBind, IConsole::CLIENT_ID_UNSPECIFIED);
