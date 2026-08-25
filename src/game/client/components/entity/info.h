@@ -18,7 +18,7 @@ public:
 	bool m_Retried = false;
 
 	char m_aVersionStr[10] = "0";
-	char m_aNews[5000] = "";
+	char m_aNews[16384] = "";
 	int Sizeof() const override { return sizeof(*this); }
 	void OnRender() override;
 	void OnInit() override;

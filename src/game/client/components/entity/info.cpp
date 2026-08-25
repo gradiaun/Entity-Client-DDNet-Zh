@@ -10,24 +10,52 @@
 static constexpr const char *ECLIENT_INFO_FILE = "eclient-info.json";
 static constexpr const char *ECLIENT_INFO_URL[2] = {"https://raw.githubusercontent.com/qxdFox/FoxSite/refs/heads/main/docs/info.json", "https://www.entityclient.net/info.json"};
 
+static const char *s_pCustomChangelogZh =
+	"#1 Entity-Client-DDNet-Zh 中文增强分支\n"
+	"-# 本分支基于 FoxNet-DDNet/Entity-Client-DDNet，由 gradiaun 维护定制\n"
+	"\n"
+	"## v1.0.0 (Custom)\n"
+	"- 修复聊天自动追加 [ERR] 翻译后缀问题（默认关闭自动翻译）\n"
+	"- 新增「扩展 (Extensions)」专属设置标签页，收录分支自实现功能\n"
+	"- 新增「指令列表 (Commands List)」内置查询页，支持实时搜索与一键复制指令到剪贴板\n"
+	"- 新增皮肤窃取功能（steal_skin / copy_skin），一键同步最近玩家的皮肤及颜色\n"
+	"- 优化 Gores 模式自动切枪逻辑：开火固定切锤（+weapon1），彻底避免切枪状态反转导致打不到人\n"
+	"- 优化重武器自动禁用：拾取喷子/激光/榴弹时单次触发关闭，重新手动开启依然可用\n"
+	"- 新增分身锤击保持抓钩抓取功能（ec_dummy_hammer_keep_hook），锤击不断钩\n"
+	"- 全面汉化与润色：重构中文词条表，将 Warlist 词条规范化为「对手/敌人」，补全所有设置项中文\n"
+	"- 修复 GitHub Actions 云端打包多处编译错误与 Release 自动发布工作流\n"
+	"\n"
+	"----------------------------------------\n"
+	"#2 官方 Entity-Client 历史更新日志\n"
+	"\n";
+
 void CEntityInfo::OnInit()
 {
+	str_copy(m_aNews, s_pCustomChangelogZh);
+
 	void *pBuf;
 	unsigned Length;
 	if(!Storage()->ReadFile(ECLIENT_INFO_FILE, IStorage::TYPE_SAVE, &pBuf, &Length))
 		return;
 
 	json_value *pJson = json_parse((const char *)pBuf, Length);
+	if(!pJson)
+		return;
 	const json_value &Json = *pJson;
 	const json_value &CurrentNews = Json["news"];
 
 	if(CurrentNews.type == json_string)
 	{
-		if(m_aNews[0] && !str_find(m_aNews, CurrentNews))
+		char aCombined[sizeof(m_aNews)];
+		str_copy(aCombined, s_pCustomChangelogZh);
+		str_append(aCombined, CurrentNews);
+
+		if(m_aNews[0] && !str_find(m_aNews, (const char *)CurrentNews))
 			g_Config.m_EcUnreadNews = true;
 
-		str_copy(m_aNews, CurrentNews);
+		str_copy(m_aNews, aCombined);
 	}
+	json_value_free(pJson);
 }
 
 void CEntityInfo::OnRender()
@@ -125,10 +153,14 @@ void CEntityInfo::FinishEClientInfo()
 
 	if(CurrentNews.type == json_string)
 	{
-		if(m_aNews[0] && !str_find(m_aNews, CurrentNews))
+		char aCombined[sizeof(m_aNews)];
+		str_copy(aCombined, s_pCustomChangelogZh);
+		str_append(aCombined, CurrentNews);
+
+		if(m_aNews[0] && !str_find(m_aNews, (const char *)CurrentNews))
 			g_Config.m_EcUnreadNews = true;
 
-		str_copy(m_aNews, CurrentNews);
+		str_copy(m_aNews, aCombined);
 	}
 
 	json_value_free(pJson);

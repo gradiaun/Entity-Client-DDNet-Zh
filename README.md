@@ -1,179 +1,86 @@
-**简体中文** | [English](README_EN.md)
+# Entity-Client-DDNet-Zh (中文增强定制版)
+
+本分支基于经典 DDNet 客户端扩展 [FoxNet-DDNet/Entity-Client-DDNet](https://github.com/FoxNet-DDNet/Entity-Client-DDNet) 进行**深度定制与中文本地化**。
+
+在完整继承原版 E-Client 特性的基础上，重构了本地化系统、独立拆分出「扩展设置」面板、加入了「内置指令列表与一键复制」、皮肤窃取、优化了 Gores 自动切枪与分身不断钩锤击等实用功能。
 
 ---
 
-![gui_logo](https://github.com/user-attachments/assets/76f93b08-3efa-40a8-96b9-b64b17c14b3f)
+## 📥 获取与下载方式
 
-# Entity-Client-DDNet (个人需求定制改版)
+1. **Releases 页面直接下载**（推荐）：
+   - 点击进入本仓库右侧的 [Releases 页面](../../releases)，下载最新的发布包压缩文件（如 `DDNet-*-win64.zip`）。
+2. **GitHub Actions 云端最新构建**：
+   - 进入本仓库的 [Actions 页面](../../actions) -> 点击最新的 **Fast Build** -> 在底部的 **Artifacts** 区域下载 `ddnet-windows-latest`。
 
-本项目是基于经典 DDNet 扩展客户端 [Entity-Client (E-Client)](https://github.com/qxdFox/Entity-Client-DDNet) 根据**个人使用与跑图需求深度定制**的改版分支。
-
-在完整继承原版 Entity-Client 全部强大特性的前提下，重构打通了本地化系统并内置中文支持，同时针对 Gores 模式、跑图观战以及日常操作体验进行了专属的自定义扩展。
-
----
-
-## 📥 获取与下载
-
-无需本地编译，直接从本仓库的 **GitHub Actions** 中下载由微软云端虚拟机自动编译打包的最新成品：
-
-1. 打开本仓库的 [Actions 页面](../../actions)。
-2. 点击最新的 **Build** 构建记录。
-3. 在页面最底部的 **Artifacts** 区域下载 `DDNet-*-win64.zip`。
-4. 解压后直接双击运行 `DDNet.exe` 即可使用。
+解压后直接双击运行 `DDNet.exe` 即可畅玩。
 
 ---
 
-## ✨ 本分支专属定制与新增功能 (Custom Features)
+## ✨ 本分支专属增强特性与使用说明
 
-以下为本分支根据个人需求独立开发并补充的专属改动：
+### 1. 📋 内置指令列表页与一键复制 (Commands List)
+* **位置**：游戏主界面点击 **「设置」 -> 「扩展 (Extensions)」 -> 「指令列表」**。
+* **特性**：
+  * **实时搜索**：输入关键字（如 `steal`、`gores`、`dummy`、`开火`、`武器`）即时筛选过滤。
+  * **一键复制**：点击任意指令右侧的 **「复制」** 按钮，指令会自动复制到操作系统剪贴板，并在游戏内提示。
+  * **宏绑定利器**：方便玩家在 F1 控制台组合复杂的 `bind` 快捷指令（例如：`bind mouse1 "+fire; steal_skin"`）。
 
-### 1. 🇨🇳 深度汉化与内嵌零配置中文支持
-* **内嵌零配置中文**：源码内置了 280+ 条 Entity 专属设置的中文翻译对照表。无需额外配置任何外部语言包，只要游戏语言设置为简体中文，所有专有功能面板**全自动显示为中文**。
-* **底层系统修复**：打通了原版中未生效的 `EcLocalize` 本地化接口，修复了数十处硬编码英文 UI。
-* **外部语言热更新**：依然支持通过 `data/languages/simplified_chinese.txt` 进行动态热重载，修改后重启游戏即刻生效。
+### 2. 🎭 皮肤窃取 / 快速复制 (`steal_skin` / `copy_skin`)
+* **功能**：自动检索距离自己最近的玩家，一键将自己的皮肤名称、身体颜色、脚部颜色完全同步为其外观。
+* **使用方式**：
+  * **控制台指令**：按 F1 输入 `steal_skin`（或 `copy_skin`）。
+  * **一键绑定快捷键**：在 F1 中输入 `bind <按键> steal_skin`（例如 `bind k steal_skin`）。
+  * **图形化设置**：进入 **「设置」 -> 「扩展」 -> 「皮肤窃取」**，直接点击录制快捷键，或点击「立即复制最近玩家的皮肤」按钮。
 
-### 2. ⚡ Gores 模式一键快捷开关 (`toggle_gores_mode`)
-* **痛点解决**：在开启 Gores 自动切锤敲击模式时，无法正常使用手枪开火提醒队友。
-* **新增指令**：新增 `toggle_gores_mode` 控制台命令，可在聊天框实时输出开启/关闭提示。
-* **按键设置集成**：在 **「设置」 -> 「控制」 -> 「武器 (Weapon)」** 菜单中直接加入了 **`切换 Gores 自动切枪模式`** 绑定项，支持鼠标点击直接按键绑定。
-* **轮盘集成**：支持直接添加至快捷绑定轮盘：`add_bindwheel "Gores模式" "toggle_gores_mode"`。
+### 3. 🔨 Gores 模式深度优化 (开火固定切锤)
+* **开火绝对切锤**：原版采用 `+prevweapon`（切上一个武器）极易因按键顺序错位导致“开火变成切枪开火，导致挥锤挥空”。本分支改为 **固定切锤（`+weapon1`）**，彻底杜绝打空反转。
+* **智能单次禁用**：在开启「持有重武器时自动暂停」后，当玩家刚刚拾取激光/散弹/榴弹时，仅执行一次自动关闭；如果玩家手动重新开启 Gores 模式，仍可在持有重武器的状态下强制切锤挥击。
+* **快捷按键开关**：新增控制台命令 `toggle_gores_mode`，可在 **「设置」 -> 「扩展」 -> 「Gores Mode」** 直接录制开关按键。
 
-### 3. 👁️ 观战/暂停模式「仅看同队成员」纯净视野 (`ec_spec_team_only`)
-* **痛点解决**：在跑图中使用 `/pause`、`/spec` 或 `smartspec.chai` 观战查看队友路线时，全图其他队伍的玩家、激光与名字牌会造成严重视觉干扰。
-* **纯净过滤**：开启此功能后，无论处于**自由漫游视角 (Freeview)** 还是**锁定队友视角**，客户端将**全自动 100% 隐藏所有非同队玩家**（包括 Tee 模型、名字牌、钩爪、激光、投掷物与冰冻状态条），仅呈现同队伍队员。
-* **配置开关**：
-  * 设置面板：在 **「Entity 设置」 -> 「常规设置」 -> 「菜单设置」** 中勾选 **`观战/暂停时仅显示同队成员`**。
-  * 控制台变量：`ec_spec_team_only 1`（`0` 为关闭，`1` 为开启）。
+### 4. 🪝 分身锤击保持钩爪抓取 (`ec_dummy_hammer_keep_hook`)
+* **痛点解决**：原版在启用分身锤击（Hammerfly / `cl_dummy_hammer 1`）时，分身出锤前会被强制重置松开钩爪。
+* **开启后效果**：分身在执行自动锤击时**全程保持钩爪抓取状态**，不再松钩，双人锤飞/飞图控制更加稳定。
+* **设置方法**：进入 **「设置」 -> 「扩展」 -> 「分身锤击设置」** 勾选 **`分身锤击时保持钩爪抓取 (不松钩)`**，或绑定快捷键 `toggle ec_dummy_hammer_keep_hook 0 1`。
 
----
+### 5. 👁️ 观战/暂停模式「仅看同队成员」纯净视野 (`ec_spec_team_only`)
+* **功能**：在跑图中使用 `/pause` 或 `/spec` 观战查看队友路线时，客户端**全自动隐藏所有非同队玩家**（包括人物模型、名字、钩爪、激光、弹幕及状态条），彻底消除其他路人队伍的视觉干扰。
+* **设置方法**：在 **「设置」 -> 「扩展」** 勾选 **`旁观模式仅显示同队成员`**，或输入 `toggle cl_spec_team_only 0 1`。
 
-## 🛠️ 原版 Entity-Client (E-Client) 核心基础功能
-
-以下为原版 Entity-Client 客户端自带的核心功能与使用说明：
-
-### 1. 快捷绑定轮盘 (Bindwheel)
-按住设定按键即可呼出可视化径向轮盘，通过鼠标快速选择执行预设的各类指令。
-* `+bindwheel`：呼出绑定轮盘（在“设置 -> 控制”或控制台绑定按键，如 `bind x +bindwheel`）。
-* `add_bindwheel "<显示名称>" "<执行指令>"`：向轮盘添加快捷项。
-* `remove_bindwheel "<显示名称>" "<执行指令>"`：移除指定项。
-* `delete_all_bindwheel_binds`：清空轮盘。
-
-#### 💡 实用轮盘一键配置范例（按 F1 在控制台执行）：
-```text
-# 队伍加入与退出
-add_bindwheel "队伍 1" "team 1"
-add_bindwheel "队伍 2" "team 2"
-add_bindwheel "队伍 3" "team 3"
-add_bindwheel "退出队伍" "team 0"
-
-# 快速重开 / 自杀
-add_bindwheel "自杀" "kill"
-
-# 切换控制分身 (Dummy)
-add_bindwheel "切换分身" "toggle cl_dummy 0 1"
-
-# 常用聊天命令
-add_bindwheel "Top5 榜单" "say /top5"
-add_bindwheel "个人排名" "say /rank"
-add_bindwheel "暂停/继续" "say /pause"
-
-# 特效与模式开关
-add_bindwheel "彩虹开关" "toggle ec_server_rainbow 0 1"
-add_bindwheel "Gores开关" "toggle_gores_mode"
-```
+### 6. 🇨🇳 深度汉化与外部语言包自定义指南
+* **内嵌零配置汉化**：源码内嵌了完整的中文对照字典，只要游戏语言选择简体中文，所有 E-Client 及扩展设置**全自动显示为中文**。
+* **如何自定义/修改或制作其他语言包**：
+  1. 游戏运行后，配置与用户数据默认保存在系统应用目录：
+     * **Windows**：按 `Win + R` 输入 `%appdata%\DDNet`（即 `C:\Users\<用户名>\AppData\Roaming\DDNet`）。
+     * **Linux / macOS**：`~/.local/share/ddnet` 或 `~/Library/Application Support/DDNet`。
+  2. 如果想自行调整中文词条或制作其他语言翻译，可在游戏根目录下的 `data/languages/` 文件夹中找到对应语言文件（例如 `simplified_chinese.txt`）。
+  3. 按照格式添加或修改翻译映射：
+     ```text
+     英文原词条
+     == 你的自定义中文翻译
+     ```
+  4. 修改保存后，在游戏主菜单重新切换一次语言即可热重载生效。
 
 ---
 
-### 2. Gores 自动化与 Anti-Ping 优化
-* `ec_gores_mode 1`：自动切枪模式（默认持手枪，按下开火键瞬间切锤敲击并切回手枪）。
-* `ec_gores_mode_disable_weapons 1`：拥有激光/榴弹/霰弹等重武器时自动暂停切锤，无重武器时自动恢复。
-* `ec_gores_mode_auto_enable 1`：进入 Gores 模式服务器时自动激活，离开时自动关闭。
-* `ec_antiping_negative_buffer 1`：专为 Gores 模式优化的负缓冲区 Anti-Ping 预测，大幅减少救援与被敲击时的画面拉扯瞬移。
+## 🛠️ 常用扩展指令速查
 
----
-
-### 3. 玩家快捷动作菜单 (Player Actions)
-将准星对准某位玩家按住动作菜单按键，一键针对该目标执行指令。
-* 支持动态占位符：`%s`（目标玩家名字）、`%d`（目标玩家 Client ID）。
-* 范例：配置动作为 `/whisper %s 来我队` 或 `votekick "%s" "挂机"`。
-
----
-
-### 4. 目标与仇人管理 (Warlist)
-多维度标记玩家与战队（好友、仇人、助手等），在聊天栏、计分板、旁观菜单全方位高亮：
-* `onlineinfo`：在聊天栏输出当前服务器各分组玩家的在线与挂机 (AFK) 数量。
-* `playerinfo "<玩家名>"`：快速查询玩家所属战队、颜色、皮肤及权限等级。
-* `addtempwar "<玩家名>"` / `deltempwar "<玩家名>"`：临时增删仇人名单。
-* `addtempmute "<玩家名>"` / `deltempmute "<玩家名>"`：临时增删屏蔽名单。
-
----
-
-### 5. 皮肤快照与个性化外观
-* `saveskin` / `restoreskin`：一键保存与恢复当前账号（或分身）的皮肤、名字、战队、颜色与旗帜快照。
-* 服务端彩虹模式：`server_rainbow_body`、`server_rainbow_feet`、`server_rainbow_speed`、`server_rainbow_both_players`、`server_rainbow_sat`、`server_rainbow_lht`。
-* 视觉增强：纯白脚、冰冻武士刀、轨迹拖尾、地图全景概览、右上角冰冻队友状态栏 (`ec_frozen_tees_hud`)。
-
----
-
-### 6. 聊天与便捷工具
-* **可框选复制聊天**：聊天栏支持鼠标直接高亮选中文字并按 `Ctrl+C` 复制，聊天记录可向上平滑滚动。
-* `reply_last <?消息内容>`：一键向上一位私聊或 `@` 提及你的玩家快捷回复。
-* `calc "<数学表达式>"`：内置轻量计算器（如 `calc 1920/1080`）。
-* 头顶聊天气泡（Chat Bubbles）：实时在 Tee 头顶以气泡展示聊天文字。
-
----
-
-### 7. 竞技操作与性能优化
-* `ec_fast_input 1`：极速输入模式（大幅降低画面操作响应延迟）。
-* `ec_high_process_priority 1`：自动提升游戏进程为高优先级，确保帧率极致平稳。
-* `ec_freeze_kill 1`：进冰自杀辅助，支持仅完全深冰自杀、视野内有队友时不自杀等智能保护。
-* `ec_anti_spawn_block 1`：防止出生点卡位。
-
----
-
-## 📜 ChaiScript 脚本引擎
-
-Entity-Client 内置了 [ChaiScript](https://chaiscript.com/) 脚本引擎。将 `.chai` 脚本放置于配置目录下，在控制台通过 `chai [脚本名] [参数...]` 即可运行。
-
-<details>
-<summary><b>点击展开 ChaiScript 基础语法与 API 状态表</b></summary>
-
-```js
-var a = 1
-var b = 2
-var c = "strings"
-print("hello " + to_string(a)) // 字符串拼接需显式 to_string
-if (c == "strings") {
-    exec("echo hello world") // 执行控制台指令
-}
-var current_mode = state("game_mode") // 获取游戏状态
-
-def myfunc(x, y) {
-    x + y // 表达式作为返回值
-}
-```
-
-### 状态查询函数 `state(...)` 常用项
-
-| 返回类型 | 调用方式 | 说明 |
+| 指令 | 默认参数/类型 | 说明 |
 | :--- | :--- | :--- |
-| `int` | `state("client_id")` | 获取当前玩家客户端 ID |
-| `int` | `state("dummy_id")` | 获取分身 (Dummy) ID |
-| `string` | `state("game_mode")` | 当前游戏模式（'DM', 'TDM', 'CTF' 等） |
-| `bool` | `state("in_freeze")` | 当前是否处于冰冻状态 |
-| `int` | `state("team")` | 当前队伍编号 |
-| `string` | `state("map")` | 当前地图名称 |
-| `string` | `state("server_ip")` | 当前服务器 IP 地址 |
-| `int` | `state("players_connected")`| 当前在线人数 |
-| `bool` | `client_info("afk", int Id)` | 目标 ID 是否挂机 |
-| `bool` | `client_info("friend", int Id)` | 目标 ID 是否为好友 |
-
-</details>
+| `steal_skin` / `copy_skin` | 指令 | 复制/窃取最近玩家的皮肤与颜色 |
+| `toggle_gores_mode` | 指令 | 一键切换开启/关闭 Gores 自动切枪模式 |
+| `toggle ec_dummy_hammer_keep_hook 0 1` | 开关 (0/1) | 切换分身锤击是否保持抓钩状态 |
+| `toggle cl_spec_team_only 0 1` | 开关 (0/1) | 切换观战是否仅显示同队队友 |
+| `bindwheel` | 指令 | 呼出自定义快捷绑定轮盘 |
+| `playeractions` | 指令 | 呼出针对目标玩家的动作菜单 |
+| `toggle cl_dummy 0 1` | 开关 (0/1) | 切换当前操作本体还是控制分身 |
+| `toggle cl_dummy_hammer 0 1` | 开关 (0/1) | 切换分身自动锤击 |
 
 ---
 
 ## 🤝 致谢与鸣谢 (Credits)
 
-- **Entity-Client 原作者**：[qxdFox](https://github.com/qxdFox) 与 [Miro8D](https://github.com/Miro8D)
-- **底层引擎与游戏**：[DDNet 团队](https://github.com/ddnet/ddnet)
-- **个人定制改版维护**：[gradiaun](https://github.com/gradiaun)
+- **E-Client 原作者**：[qxdFox](https://github.com/qxdFox) & [Miro8D](https://github.com/Miro8D)
+- **底层架构**：[DDNet 官方开发团队](https://github.com/ddnet/ddnet)
+- **中文分支维护与定制**：[gradiaun](https://github.com/gradiaun)
+
