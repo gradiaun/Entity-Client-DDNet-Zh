@@ -2584,8 +2584,6 @@ void CMenus::RenderSettingsExtensions(CUIRect MainView)
 
 		std::vector<CSettingsModule> vModules;
 
-		CUIRect Label;
-
 		/* Gores Mode Extension */
 		vModules.push_back({
 			ESettingsModuleColumn::LEFT,
