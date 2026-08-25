@@ -273,6 +273,19 @@ int CControls::SnapInput(int *pData)
 		if(!m_aInputData[g_Config.m_ClDummy].m_TargetX && !m_aInputData[g_Config.m_ClDummy].m_TargetY)
 			m_aInputData[g_Config.m_ClDummy].m_TargetX = 1;
 
+		// Gores Mode: when firing, switch to hammer; when not firing, switch to gun
+		if(g_Config.m_ClGoresMode)
+		{
+			if(m_aInputData[g_Config.m_ClDummy].m_Fire & 1)
+			{
+				m_aInputData[g_Config.m_ClDummy].m_WantedWeapon = WEAPON_HAMMER + 1;
+			}
+			else
+			{
+				m_aInputData[g_Config.m_ClDummy].m_WantedWeapon = WEAPON_GUN + 1;
+			}
+		}
+
 		// set direction
 		m_aInputData[g_Config.m_ClDummy].m_Direction = 0;
 		if(m_aInputDirectionLeft[g_Config.m_ClDummy] && !m_aInputDirectionRight[g_Config.m_ClDummy])

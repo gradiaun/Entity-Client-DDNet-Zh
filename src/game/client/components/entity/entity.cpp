@@ -233,13 +233,7 @@ void CEClient::GoresMode()
 		}
 	}
 	m_HadExtraWeapons = HasExtraWeapons;
-	m_WeaponsGot = false; // Always allow active Gores Mode bindings to function even with heavy weapons
-
-	if(!g_Config.m_ClGoresMode)
-		return;
-
-	if(GameClient()->m_Snap.m_pLocalCharacter->m_Weapon == 0)
-		GameClient()->m_Controls.m_aInputData[g_Config.m_ClDummy].m_WantedWeapon = WEAPON_GUN + 1;
+	m_WeaponsGot = false;
 }
 
 void CEClient::OnConnect(int Conn)

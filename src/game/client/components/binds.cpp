@@ -142,13 +142,6 @@ bool CBinds::OnInput(const IInput::CEvent &Event)
 						m_MouseOnAction = true;
 					}
 				}
-				if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire") && !str_find(aBind, "+weapon1"))
-				{
-					char aTemp[512];
-					str_format(aTemp, sizeof(aTemp), "+weapon1;%s", aBind);
-					str_copy(aBind, aTemp, sizeof(aBind));
-				}
-
 				Console()->ExecuteLineStroked(1, aBind, IConsole::CLIENT_ID_UNSPECIFIED);
 				m_vActiveBinds.emplace_back(Event.m_Key, Mask);
 			};
@@ -172,16 +165,7 @@ bool CBinds::OnInput(const IInput::CEvent &Event)
 			// Have to check for nullptr again because the previous execute can unbind itself
 			if(m_aapKeyBindings[ActiveBind->m_ModifierMask][ActiveBind->m_Key])
 			{
-				char aBind[512];
-				str_copy(aBind, m_aapKeyBindings[ActiveBind->m_ModifierMask][ActiveBind->m_Key], sizeof(aBind));
-				if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire") && !str_find(aBind, "+weapon1"))
-				{
-					char aTemp[512];
-					str_format(aTemp, sizeof(aTemp), "+weapon1;%s", aBind);
-					str_copy(aBind, aTemp, sizeof(aBind));
-				}
-
-				Console()->ExecuteLineStroked(1, aBind, IConsole::CLIENT_ID_UNSPECIFIED);
+				Console()->ExecuteLineStroked(1, m_aapKeyBindings[ActiveBind->m_ModifierMask][ActiveBind->m_Key], IConsole::CLIENT_ID_UNSPECIFIED);
 			}
 			Handled = true;
 		}
@@ -203,16 +187,8 @@ bool CBinds::OnInput(const IInput::CEvent &Event)
 			{
 				return;
 			}
-			char aBind[512];
-			str_copy(aBind, m_aapKeyBindings[Bind.m_ModifierMask][Bind.m_Key], sizeof(aBind));
-			if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire") && !str_find(aBind, "+weapon1"))
-			{
-				char aTemp[512];
-				str_format(aTemp, sizeof(aTemp), "+weapon1;%s", aBind);
-				str_copy(aBind, aTemp, sizeof(aBind));
-			}
 
-			Console()->ExecuteLineStroked(0, aBind, IConsole::CLIENT_ID_UNSPECIFIED);
+			Console()->ExecuteLineStroked(0, m_aapKeyBindings[Bind.m_ModifierMask][Bind.m_Key], IConsole::CLIENT_ID_UNSPECIFIED);
 		};
 
 		// Release active bind that uses this primary key
