@@ -34,8 +34,9 @@ jobs:
 
       - name: Download Ubuntu artifact
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
-          name: ${{ env.CLIENT_NAME }}-ubuntu-22.04
+          name: ddnet-ubuntu-22.04
           path: ./artifacts/ubuntu
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ env.TARGET_REPOSITORY }}
@@ -43,8 +44,9 @@ jobs:
 
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
-          name: ${{ env.CLIENT_NAME }}-windows-latest
+          name: ddnet-windows-latest
           path: ./artifacts/windows
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ env.TARGET_REPOSITORY }}
@@ -52,8 +54,9 @@ jobs:
 
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
-          name: ${{ env.CLIENT_NAME }}-macOS-latest
+          name: ddnet-macOS-latest
           path: ./artifacts/macOS
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ env.TARGET_REPOSITORY }}
@@ -61,40 +64,16 @@ jobs:
 
       - name: Rename and Move Artifacts
         run: |
-          declare -a multi_ext=("tar.gz" "tar.bz2" "tar.xz" "tar.Z")
-
-          for dir in ./artifacts/*/ ; do
-            os=$(basename "$dir")
-            # Find the single file in the OS directory
-            file=$(find "$dir" -type f | head -n 1)
-
-            if [ -z "$file" ]; then
-              echo "No artifact found in directory $dir. Skipping."
-              continue
-            fi
-
-            filename=$(basename "$file")
-            extension=""
-            for ext in "${multi_ext[@]}"; do
-              if [[ "$filename" == *.$ext ]]; then
-                extension="$ext"
-                break
-              fi
-            done
-            if [ -z "$extension" ]; then
-              extension="${filename##*.}"
-            fi
-
-            new_name="${CLIENT_NAME}-${os}.${extension}"
-            echo "Renaming $file to $new_name"
-            mv "$file" "./artifacts/$new_name"
-            echo "Moved $new_name to ./artifacts/"
+          mkdir -p ./release-assets
+          for file in $(find ./artifacts -type f \( -name "*.zip" -o -name "*.tar.*" -o -name "*.dmg" -o -name "*.apk" \)); do
+            echo "Found asset: $file"
+            cp "$file" ./release-assets/
           done
 
-      - name: List artifacts directory
+      - name: List release assets
         run: |
-          echo "Listing ./artifacts directory:"
-          ls -R ./artifacts
+          echo "Listing ./release-assets directory:"
+          ls -la ./release-assets
 
       - name: Create GitHub Release and upload assets
         uses: softprops/action-gh-release@v2
@@ -103,7 +82,4 @@ jobs:
           name: ${{ github.event.inputs.release_name }}
           body: ${{ github.event.inputs.body }}
           fail_on_unmatched_files: false
-          files: |
-            ./artifacts/${{ env.CLIENT_NAME }}-ubuntu.tar.xz
-            ./artifacts/${{ env.CLIENT_NAME }}-windows.zip
-            ./artifacts/${{ env.CLIENT_NAME }}-macOS.dmg
+          files: ./release-assets/*
