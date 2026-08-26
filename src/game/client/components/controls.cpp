@@ -537,6 +537,14 @@ bool CControls::CheckNewInput()
 				TestInput.m_Direction = -1;
 			if(!m_aInputDirectionLeft[Dummy] && m_aInputDirectionRight[Dummy])
 				TestInput.m_Direction = 1;
+
+			if(g_Config.m_ClGoresMode)
+			{
+				if(TestInput.m_Fire & 1)
+					TestInput.m_WantedWeapon = WEAPON_HAMMER + 1;
+				else
+					TestInput.m_WantedWeapon = WEAPON_GUN + 1;
+			}
 		}
 
 		if(m_aFastInput[Dummy].m_Direction != TestInput.m_Direction)
