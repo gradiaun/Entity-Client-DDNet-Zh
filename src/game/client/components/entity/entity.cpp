@@ -236,10 +236,97 @@ void CEClient::GoresMode()
 	m_WeaponsGot = false;
 
 	if(!g_Config.m_ClGoresMode)
+	{
+		m_GoresState[0] = EGoresState::IDLE;
+		m_GoresState[1] = EGoresState::IDLE;
+		m_GoresPendingFire[0] = false;
+		m_GoresPendingFire[1] = false;
 		return;
+	}
 
-	if(GameClient()->m_Snap.m_pLocalCharacter->m_Weapon == 0)
-		GameClient()->m_Controls.m_aInputData[g_Config.m_ClDummy].m_WantedWeapon = WEAPON_GUN + 1;
+	const int Dummy = g_Config.m_ClDummy;
+	int CurrentActiveWeapon = GameClient()->m_Snap.m_pLocalCharacter->m_Weapon;
+	int &RawFire = GameClient()->m_Controls.m_aInputData[Dummy].m_Fire;
+	int64_t Now = time_get();
+
+	// Timeout safeguard (if transaction takes > 400ms, unlock and reset)
+	if(m_GoresState[Dummy] != EGoresState::IDLE && (Now - m_GoresLockTime[Dummy]) > time_freq() * 0.4f)
+	{
+		m_GoresState[Dummy] = EGoresState::IDLE;
+		m_GoresPendingFire[Dummy] = false;
+	}
+
+	switch(m_GoresState[Dummy])
+	{
+	case EGoresState::IDLE:
+	{
+		// Player triggers fire while not holding hammer
+		if((RawFire & 1) && CurrentActiveWeapon != WEAPON_HAMMER)
+		{
+			m_GoresPrevWeapon[Dummy] = CurrentActiveWeapon;
+			m_GoresState[Dummy] = EGoresState::SWITCH_TO_HAMMER;
+			m_GoresLockTime[Dummy] = Now;
+			m_GoresPendingFire[Dummy] = true;
+
+			// Suppress immediate fire, send switch to hammer first
+			if((RawFire & 1) != 0)
+				RawFire++;
+			RawFire &= INPUT_STATE_MASK;
+			GameClient()->m_Controls.m_aInputData[Dummy].m_WantedWeapon = WEAPON_HAMMER + 1;
+		}
+		break;
+	}
+	case EGoresState::SWITCH_TO_HAMMER:
+	{
+		// Request hammer switch
+		GameClient()->m_Controls.m_aInputData[Dummy].m_WantedWeapon = WEAPON_HAMMER + 1;
+
+		// Check if switch to hammer completed
+		if(CurrentActiveWeapon == WEAPON_HAMMER)
+		{
+			m_GoresState[Dummy] = EGoresState::HAMMER_FIRING;
+			m_GoresLockTime[Dummy] = Now;
+
+			// Trigger fire with hammer
+			RawFire = (RawFire + 1) | 1;
+			RawFire &= INPUT_STATE_MASK;
+		}
+		else
+		{
+			// Suppress fire while waiting for switch
+			if((RawFire & 1) != 0)
+				RawFire++;
+			RawFire &= INPUT_STATE_MASK;
+		}
+		break;
+	}
+	case EGoresState::HAMMER_FIRING:
+	{
+		// Hammer has fired, now switch back to previous weapon
+		GameClient()->m_Controls.m_aInputData[Dummy].m_WantedWeapon = m_GoresPrevWeapon[Dummy] + 1;
+
+		// Release fire button
+		if((RawFire & 1) != 0)
+			RawFire++;
+		RawFire &= INPUT_STATE_MASK;
+
+		m_GoresState[Dummy] = EGoresState::RESTORE_WEAPON;
+		m_GoresLockTime[Dummy] = Now;
+		break;
+	}
+	case EGoresState::RESTORE_WEAPON:
+	{
+		// Continue requesting restore until weapon is restored or timeout
+		GameClient()->m_Controls.m_aInputData[Dummy].m_WantedWeapon = m_GoresPrevWeapon[Dummy] + 1;
+
+		if(CurrentActiveWeapon == m_GoresPrevWeapon[Dummy] || CurrentActiveWeapon != WEAPON_HAMMER)
+		{
+			m_GoresState[Dummy] = EGoresState::IDLE;
+			m_GoresPendingFire[Dummy] = false;
+		}
+		break;
+	}
+	}
 }
 
 void CEClient::OnConnect(int Conn)
@@ -250,16 +337,15 @@ void CEClient::OnConnect(int Conn)
 	static bool s_SentInfoMessage = false;
 	if(m_FirstLaunch && !s_SentInfoMessage)
 	{
-		GameClient()->ClientMessage("╭──                 E-Client Info");
-		GameClient()->ClientMessage("│ Seems like it's your first time running the client!");
+		GameClient()->ClientMessage("╭──                 客户端信息");
+		GameClient()->ClientMessage("│ 这应该是你第一次运行使用客户端，欢迎使用!");
 		GameClient()->ClientMessage("│");
-		GameClient()->ClientMessage("│ To view a list of Default Chat Commands do \".help\"");
+		GameClient()->ClientMessage("│ 输入 \".help\" 查看默认聊天命令列表");
 		GameClient()->ClientMessage("│");
-		GameClient()->ClientMessage("│ If you find a bug or have a Feature Request do \".github\"");
+		GameClient()->ClientMessage("│ 如果发现 bug 或有功能需求，请发送到:\".github\"");
 		GameClient()->ClientMessage("│");
-		GameClient()->ClientMessage("│ Chat Commands that start with \".\" are silent by default,");
-		GameClient()->ClientMessage("│ which means no one will see them.");
-		GameClient()->ClientMessage("│ Messages that start with \"!\" will be sent");
+		GameClient()->ClientMessage("│ 以 \".\" 开头的聊天命令默认是静默的，意味着没人会看到");
+		GameClient()->ClientMessage("│以 \"!\" 开头的聊天命令默认是公开的，这意味着所有人都会看到");
 		GameClient()->ClientMessage("╰───────────────────────");
 		s_SentInfoMessage = true;
 	}
