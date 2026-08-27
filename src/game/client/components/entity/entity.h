@@ -157,6 +157,30 @@ public:
 	 */
 	int64_t m_LastMovement;
 
+	struct CScheduledTask
+	{
+		int m_Id = 0;
+		char m_aName[64] = {0};
+		char m_aCommand[256] = {0};
+		int m_IntervalMs = 1000;
+		bool m_Repeat = false;
+		bool m_Active = true;
+		int64_t m_NextExecTime = 0;
+	};
+
+	std::vector<CScheduledTask> m_vScheduledTasks;
+	int m_NextTaskId = 1;
+
+	void UpdateTaskScheduler();
+	int AddScheduledTask(const char *pName, const char *pCommand, int IntervalMs, bool Repeat);
+	bool RemoveScheduledTask(int Id);
+	void ClearScheduledTasks();
+
+	static void ConTimeout(IConsole::IResult *pResult, void *pUserData);
+	static void ConInterval(IConsole::IResult *pResult, void *pUserData);
+	static void ConStopTasks(IConsole::IResult *pResult, void *pUserData);
+	static void ConListTasks(IConsole::IResult *pResult, void *pUserData);
+
 	bool m_FirstLaunch = false;
 
 	void SetDDNetProcessPriority(bool Set);

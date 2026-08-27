@@ -2671,6 +2671,68 @@ void CMenus::RenderSettingsExtensions(CUIRect MainView)
 			},
 		});
 
+		/* Task Scheduler Extension */
+		vModules.push_back({
+			ESettingsModuleColumn::LEFT,
+			{"task", "scheduler", "timer", "timeout", "interval", "loop", "afk"},
+			[](bool HasSearch) {
+				return 160.0f;
+			},
+			[&](CUIRect ModuleRect, bool HasSearch) {
+				ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
+				ModuleRect.VMargin(Margin, &ModuleRect);
+
+				ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
+				Ui()->DoLabel(&Button, EcLocalize("Task Scheduler"), HeaderSize, HeaderAlignment);
+
+				static CLineInputBuffered<64> s_TaskCmdInput;
+				static CLineInputBuffered<16> s_TaskIntervalInput;
+				if(s_TaskIntervalInput.GetString()[0] == '\0')
+					s_TaskIntervalInput.SetString("1000");
+
+				CUIRect Row;
+				ModuleRect.HSplitTop(LineSize, &Row, &ModuleRect);
+				CUIRect LabelRect, InputRect;
+				Row.VSplitLeft(70.0f, &LabelRect, &InputRect);
+				Ui()->DoLabel(&LabelRect, EcLocalize("Command:"), FontSize, TEXTALIGN_ML);
+				Ui()->DoEditBox(&s_TaskCmdInput, &InputRect, FontSize);
+
+				ModuleRect.HSplitTop(LineSize, &Row, &ModuleRect);
+				Row.VSplitLeft(70.0f, &LabelRect, &InputRect);
+				Ui()->DoLabel(&LabelRect, EcLocalize("Interval(ms):"), FontSize, TEXTALIGN_ML);
+				Ui()->DoEditBox(&s_TaskIntervalInput, &InputRect, FontSize);
+
+				ModuleRect.HSplitTop(LineSize, &Row, &ModuleRect);
+				CUIRect BtnTimeout, BtnInterval, BtnStop;
+				Row.VSplitLeft(Row.w / 3.0f - 2.0f, &BtnTimeout, &Row);
+				Row.VSplitLeft(4.0f, nullptr, &Row);
+				Row.VSplitLeft(Row.w / 2.0f - 2.0f, &BtnInterval, &BtnStop);
+
+				static CButtonContainer s_BtnTimeoutCont, s_BtnIntervalCont, s_BtnStopCont;
+				if(DoButton_Menu(&s_BtnTimeoutCont, EcLocalize("Timeout (Once)"), 0, &BtnTimeout))
+				{
+					int Ms = str_toint(s_TaskIntervalInput.GetString());
+					GameClient()->m_EClient.AddScheduledTask("UI-Timeout", s_TaskCmdInput.GetString(), Ms, false);
+				}
+				if(DoButton_Menu(&s_BtnIntervalCont, EcLocalize("Interval (Loop)"), 0, &BtnInterval))
+				{
+					int Ms = str_toint(s_TaskIntervalInput.GetString());
+					GameClient()->m_EClient.AddScheduledTask("UI-Interval", s_TaskCmdInput.GetString(), Ms, true);
+				}
+				if(DoButton_Menu(&s_BtnStopCont, EcLocalize("Stop All Tasks"), 0, &BtnStop))
+				{
+					GameClient()->m_EClient.ClearScheduledTasks();
+					GameClient()->ClientMessage("All scheduled tasks stopped");
+				}
+
+				CUIRect StatusRect;
+				ModuleRect.HSplitTop(LineSize, &StatusRect, &ModuleRect);
+				char aStatus[64];
+				str_format(aStatus, sizeof(aStatus), "%s: %d", EcLocalize("Active Tasks"), (int)GameClient()->m_EClient.m_vScheduledTasks.size());
+				Ui()->DoLabel(&StatusRect, aStatus, FontSize * 0.9f, TEXTALIGN_ML);
+			},
+		});
+
 		static CLineInputBuffered<32> s_VisualSearchInput;
 		RenderSettingsModuleSearchBar(s_ScrollRegion, MainView, vModules, s_VisualSearchInput);
 		MainView.HSplitTop(10.0f, nullptr, &MainView);
@@ -2704,7 +2766,11 @@ void CMenus::RenderSettingsExtensions(CUIRect MainView)
 		};
 
 		static const SCommandEntry s_aCommands[] = {
-			// Extensions
+			// Extensions & Task Scheduler
+			{"定时任务与调度 (Custom)", "timeout <ms> <command>", "延迟指定毫秒后单次执行控制台指令 (例如: timeout 3000 \"say hello\")"},
+			{"定时任务与调度 (Custom)", "interval <ms> <command>", "周期性循环执行控制台指令 (例如: interval 5000 \"say [AFK] 暂离中\")"},
+			{"定时任务与调度 (Custom)", "stop_tasks [id]", "停止指定任务编号或一键清空停止所有定时任务"},
+			{"定时任务与调度 (Custom)", "list_tasks", "在控制台输出当前所有活跃定时任务的状态清单"},
 			{"扩展指令 (Custom)", "steal_skin", "窃取/复制最近玩家的皮肤及身体脚部颜色"},
 			{"扩展指令 (Custom)", "copy_skin", "steal_skin 的别名指令"},
 			{"扩展指令 (Custom)", "toggle_gores_mode", "一键快捷开启/关闭 Gores 自动切枪模式"},

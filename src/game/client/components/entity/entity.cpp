@@ -682,11 +682,89 @@ void CEClient::OnRender()
 
 	UpdateRainbow();
 	GoresMode();
+	UpdateTaskScheduler();
 
 	if(GameClient()->m_Controls.m_aInputData[g_Config.m_ClDummy].m_Jump || (GameClient()->m_Controls.m_aInputDirectionLeft[g_Config.m_ClDummy] || GameClient()->m_Controls.m_aInputDirectionRight[g_Config.m_ClDummy]))
 	{
 		m_LastMovement = time_get();
 	}
+}
+
+void CEClient::UpdateTaskScheduler()
+{
+	int64_t Now = time_get();
+	for(size_t i = 0; i < m_vScheduledTasks.size(); )
+	{
+		auto &Task = m_vScheduledTasks[i];
+		if(!Task.m_Active)
+		{
+			++i;
+			continue;
+		}
+
+		if(Now >= Task.m_NextExecTime)
+		{
+			if(Task.m_aCommand[0] != '\0')
+			{
+				Console()->ExecuteLine(Task.m_aCommand);
+			}
+
+			if(Task.m_Repeat)
+			{
+				Task.m_NextExecTime = Now + (time_freq() * Task.m_IntervalMs) / 1000;
+				++i;
+			}
+			else
+			{
+				// One-shot timeout finished, erase task
+				m_vScheduledTasks.erase(m_vScheduledTasks.begin() + i);
+			}
+		}
+		else
+		{
+			++i;
+		}
+	}
+}
+
+int CEClient::AddScheduledTask(const char *pName, const char *pCommand, int IntervalMs, bool Repeat)
+{
+	if(!pCommand || pCommand[0] == '\0')
+		return -1;
+
+	CScheduledTask Task;
+	Task.m_Id = m_NextTaskId++;
+	if(pName && pName[0] != '\0')
+		str_copy(Task.m_aName, pName, sizeof(Task.m_aName));
+	else
+		str_format(Task.m_aName, sizeof(Task.m_aName), "Task #%d", Task.m_Id);
+
+	str_copy(Task.m_aCommand, pCommand, sizeof(Task.m_aCommand));
+	Task.m_IntervalMs = std::max(10, IntervalMs);
+	Task.m_Repeat = Repeat;
+	Task.m_Active = true;
+	Task.m_NextExecTime = time_get() + (time_freq() * Task.m_IntervalMs) / 1000;
+
+	m_vScheduledTasks.push_back(Task);
+	return Task.m_Id;
+}
+
+bool CEClient::RemoveScheduledTask(int Id)
+{
+	for(auto it = m_vScheduledTasks.begin(); it != m_vScheduledTasks.end(); ++it)
+	{
+		if(it->m_Id == Id)
+		{
+			m_vScheduledTasks.erase(it);
+			return true;
+		}
+	}
+	return false;
+}
+
+void CEClient::ClearScheduledTasks()
+{
+	m_vScheduledTasks.clear();
 }
 
 void CEClient::OnSelfDeath(bool Dummy)

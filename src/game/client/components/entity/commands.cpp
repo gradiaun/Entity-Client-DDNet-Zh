@@ -579,6 +579,78 @@ void CEClient::ConToggleGoresMode(IConsole::IResult *pResult, void *pUserData)
 		pSelf->GameClient()->ClientMessage("Gores Mode: Disabled");
 }
 
+void CEClient::ConTimeout(IConsole::IResult *pResult, void *pUserData)
+{
+	CEClient *pSelf = (CEClient *)pUserData;
+	int Ms = pResult->GetInteger(0);
+	const char *pCmd = pResult->GetString(1);
+	int TaskId = pSelf->AddScheduledTask("Timeout", pCmd, Ms, false);
+	if(TaskId > 0)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "Timeout Task #%d set for %d ms", TaskId, Ms);
+		pSelf->GameClient()->ClientMessage(aBuf);
+	}
+}
+
+void CEClient::ConInterval(IConsole::IResult *pResult, void *pUserData)
+{
+	CEClient *pSelf = (CEClient *)pUserData;
+	int Ms = pResult->GetInteger(0);
+	const char *pCmd = pResult->GetString(1);
+	int TaskId = pSelf->AddScheduledTask("Interval", pCmd, Ms, true);
+	if(TaskId > 0)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "Interval Task #%d created (every %d ms)", TaskId, Ms);
+		pSelf->GameClient()->ClientMessage(aBuf);
+	}
+}
+
+void CEClient::ConStopTasks(IConsole::IResult *pResult, void *pUserData)
+{
+	CEClient *pSelf = (CEClient *)pUserData;
+	if(pResult->NumArguments() > 0)
+	{
+		int Id = pResult->GetInteger(0);
+		if(pSelf->RemoveScheduledTask(Id))
+		{
+			char aBuf[64];
+			str_format(aBuf, sizeof(aBuf), "Task #%d stopped and removed", Id);
+			pSelf->GameClient()->ClientMessage(aBuf);
+		}
+		else
+		{
+			pSelf->GameClient()->ClientMessage("Task not found");
+		}
+	}
+	else
+	{
+		pSelf->ClearScheduledTasks();
+		pSelf->GameClient()->ClientMessage("All scheduled tasks stopped");
+	}
+}
+
+void CEClient::ConListTasks(IConsole::IResult *pResult, void *pUserData)
+{
+	CEClient *pSelf = (CEClient *)pUserData;
+	if(pSelf->m_vScheduledTasks.empty())
+	{
+		pSelf->GameClient()->ClientMessage("No scheduled tasks currently active");
+		return;
+	}
+
+	pSelf->GameClient()->ClientMessage("=== Scheduled Tasks ===");
+	for(const auto &Task : pSelf->m_vScheduledTasks)
+	{
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "[#%d] %s: %s (interval: %dms, repeat: %s, active: %s)",
+			Task.m_Id, Task.m_aName, Task.m_aCommand, Task.m_IntervalMs,
+			Task.m_Repeat ? "yes" : "no", Task.m_Active ? "yes" : "no");
+		pSelf->GameClient()->ClientMessage(aBuf);
+	}
+}
+
 void CEClient::ConCrash(IConsole::IResult *pResult, void *pUserData)
 {
 	exit(666);
@@ -607,6 +679,12 @@ void CEClient::OnConsoleInit()
 	Console()->Register("onlineinfo", "", CFGFLAG_CLIENT, ConOnlineInfo, this, "Shows you how many people of default lists are on the current server");
 	Console()->Register("playerinfo", "r[name]", CFGFLAG_CLIENT, ConPlayerInfo, this, "Get Info of a Player");
 	Console()->Register("toggle_gores_mode", "", CFGFLAG_CLIENT, ConToggleGoresMode, this, "Toggle Gores Mode on/off");
+
+	// Task Scheduler
+	Console()->Register("timeout", "i[milliseconds] r[command]", CFGFLAG_CLIENT, ConTimeout, this, "Execute a command after a delay in milliseconds");
+	Console()->Register("interval", "i[milliseconds] r[command]", CFGFLAG_CLIENT, ConInterval, this, "Repeatedly execute a command every interval in milliseconds");
+	Console()->Register("stop_tasks", "?i[id]", CFGFLAG_CLIENT, ConStopTasks, this, "Stop all scheduled tasks or a specific task by ID");
+	Console()->Register("list_tasks", "", CFGFLAG_CLIENT, ConListTasks, this, "List all active scheduled tasks");
 
 	// Skin Saving/Restoing
 	Console()->Register("restoreskin", "", CFGFLAG_CLIENT, ConRestoreSkin, this, "Restore Your Saved Info");

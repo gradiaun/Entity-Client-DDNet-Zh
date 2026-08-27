@@ -351,6 +351,13 @@ static const SEntityTranslationEntry s_aEntityTranslationsZh[] = {
 	{"Warlist Sweat Mode", "对手列表专注模式 (Sweat Mode)"},
 	{"Width", "宽度"},
 	{"Yes", "是"},
+	{"Task Scheduler", "定时任务调度器"},
+	{"Command:", "执行指令:"},
+	{"Interval(ms):", "间隔/延时(ms):"},
+	{"Timeout (Once)", "单次延迟 (Timeout)"},
+	{"Interval (Loop)", "循环定时 (Interval)"},
+	{"Stop All Tasks", "停止所有任务"},
+	{"Active Tasks", "运行中的任务数"},
 	{"Your profile", "个人档案"},
 	{"z = Zoom", "z = 视野缩放 (Zoom)"},
 };
