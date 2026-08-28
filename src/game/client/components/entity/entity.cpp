@@ -475,7 +475,8 @@ void CEClient::UpdateRainbow()
 
 	if(Client()->State() == IClient::STATE_ONLINE)
 	{
-		if(g_Config.m_ClServerRainbow && m_RainbowDelay < time_get() && m_LastMovement + time_freq() * 30 > time_get() && !GameClient()->m_aClients[GameClient()->m_Snap.m_LocalClientId].m_Afk)
+		const int64_t Now = time_get();
+		if(g_Config.m_ClServerRainbow && m_RainbowDelay < Now && m_LastMovement + time_freq() * 30 > Now && !GameClient()->m_aClients[GameClient()->m_Snap.m_LocalClientId].m_Afk)
 		{
 			if(m_RainbowBody[g_Config.m_ClDummy] || m_RainbowFeet[g_Config.m_ClDummy])
 			{
@@ -706,7 +707,7 @@ void CEClient::UpdateTaskScheduler()
 		{
 			if(Task.m_aCommand[0] != '\0')
 			{
-				Console()->ExecuteLine(Task.m_aCommand);
+				Console()->ExecuteLine(Task.m_aCommand, -1);
 			}
 
 			if(Task.m_Repeat)

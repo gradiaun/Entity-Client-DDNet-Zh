@@ -115,6 +115,7 @@ public:
 	int m_RainbowSpeed = 10;
 	int m_RainbowSat[2] = {200, 200};
 	int m_RainbowLht[2] = {30, 30};
+	int64_t m_RainbowDelay = 0;
 
 	// Preview
 	unsigned int m_PreviewRainbowColor[2];
