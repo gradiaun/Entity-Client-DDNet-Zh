@@ -2688,7 +2688,7 @@ void CMenus::RenderSettingsExtensions(CUIRect MainView)
 				static CLineInputBuffered<64> s_TaskCmdInput;
 				static CLineInputBuffered<16> s_TaskIntervalInput;
 				if(s_TaskIntervalInput.GetString()[0] == '\0')
-					s_TaskIntervalInput.SetString("1000");
+					s_TaskIntervalInput.Set("1000");
 
 				CUIRect Row;
 				ModuleRect.HSplitTop(LineSize, &Row, &ModuleRect);

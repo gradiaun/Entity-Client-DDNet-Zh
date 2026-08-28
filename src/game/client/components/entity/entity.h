@@ -5,6 +5,7 @@
 
 #include <engine/console.h>
 #include <engine/shared/protocol.h>
+#include <generated/protocol.h>
 
 #include <game/client/component.h>
 
