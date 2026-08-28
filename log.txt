@@ -1,0 +1,541 @@
+Run VERSION_FILE="$GITHUB_WORKSPACE/versioninfo.h"
+-- Building for: Visual Studio 18 2026
+-- The C compiler identification is MSVC 19.51.36256.0
+-- The CXX compiler identification is MSVC 19.51.36256.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/18/Enterprise/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/18/Enterprise/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Looking for __i386
+-- Looking for __i386 - not found
+-- Could NOT find PkgConfig (missing: PKG_CONFIG_EXECUTABLE) 
+-- Found ZLIB: src/engine/external/zlib
+-- Could NOT find Crypto (missing: CRYPTO_LIBRARY CRYPTO_INCLUDEDIR) 
+-- Found Curl: D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/ddnet-libs/curl/windows/lib64/curl.lib
+-- Found FFMPEG: D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/ddnet-libs/ffmpeg/windows/lib64/avcodec.lib
+-- Found Freetype: D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/ddnet-libs/freetype/windows/lib64/freetype.lib
+-- Found Git: C:/Program Files/Git/mingw64/bin/git.exe (found version "2.55.0.windows.4")
+-- Found GLEW: src/engine/external/glew
+-- Could NOT find GTest (missing: GTEST_LIBRARY GTEST_INCLUDE_DIR GTEST_MAIN_LIBRARY) 
+-- Found Ogg: D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/ddnet-libs/opus/include
+-- Found Opus: D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/ddnet-libs/opus/include/opus
+-- Found Opusfile: D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/ddnet-libs/opus/windows/lib64/opusfile.lib
+-- Found PNG: D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/ddnet-libs/png/windows/lib64/libpng16-16.lib
+-- Found Python3: C:/hostedtoolcache/windows/Python/3.14.7/x64/python3.exe (found version "3.14.7") found components: Interpreter
+-- Found Rust: C:/Users/runneradmin/.cargo/bin/rustc.exe
+-- Found SDL2: D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/ddnet-libs/sdl/windows/lib64/SDL2.lib
+-- Found SQLite3: D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/ddnet-libs/sqlite3/include
+-- Found DiscordSdk: D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/ddnet-libs/discord/windows/lib64/discord_game_sdk.dll.lib
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - not found
+-- Found Threads: TRUE
+-- Found Wavpack: src/engine/external/wavpack
+-- ******** DDNet ********
+-- Target OS: windows AMD64
+-- Compiler: C:/Program Files/Microsoft Visual Studio/18/Enterprise/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+-- Rust version: rustc 1.97.1 (8bab26f4f 2026-07-14)
+-- Build type: Release
+-- Dependencies:
+--  * Curl not found (using bundled version)
+--  * FFmpeg not found (using bundled version)
+--  * Freetype not found (using bundled version)
+--  * Git found
+--  * Glew not found (using bundled version)
+--  * GTest not found
+--  * Ogg not found (using bundled version)
+--  * OpenSSL Crypto not found
+--  * Opus not found (using bundled version)
+--  * Opusfile not found (using bundled version)
+--  * PNG not found (using bundled version)
+--  * Python3 found
+--  * SDL2 not found (using bundled version)
+--  * SQLite3 not found (using bundled version)
+--  * Wavpack not found (using bundled version)
+--  * Zlib not found (using bundled version)
+--  * DiscordSdk found
+-- Automatically downloading GTest to be able to run tests
+-- Configuring done (0.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/release/googletest-download
+MSBuild version 18.9.1+a81b43525 for .NET Framework
+
+  1>Checking Build System
+  Creating directories for 'googletest'
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/release/googletest-download/CMakeLists.txt
+  Performing download step (git clone) for 'googletest'
+  Cloning into 'googletest-src'...
+  HEAD is now at e5443e5c Remove empty glob pattern, which is now an error.
+  Performing update step for 'googletest'
+  -- Already at requested ref: e5443e5c65f23bfd2a9d56a30bb5b1de91a48ff9
+  No patch step for 'googletest'
+  No configure step for 'googletest'
+  No build step for 'googletest'
+  No install step for 'googletest'
+  No test step for 'googletest'
+  Completed 'googletest'
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/release/googletest-download/CMakeLists.txt
+-- Looking for WavpackOpenFileInputEx
+-- Looking for WavpackOpenFileInputEx - not found
+-- Looking for WavpackCloseFile
+-- Looking for WavpackCloseFile - not found
+-- Configuring done (29.8s)
+-- Generating done (0.4s)
+-- Build files have been written to: D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/release
+MSBuild version 18.9.1+a81b43525 for .NET Framework
+
+  1>Checking Build System
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  image.cpp
+  image_loader.cpp
+  image_manipulation.cpp
+  engine-gfx.vcxproj -> D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\engine-gfx.dir\Release\engine-gfx.lib
+  2>Generating src/generated/protocol7.h
+  1>Generating src/generated/protocol.h
+  3>Generating src/generated/protocolglue.h
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  1>Generating src/generated/protocol.cpp
+  3>Generating src/generated/protocolglue_generated.cpp
+  2>Generating src/generated/protocol7.cpp
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  mumble.cpp
+  regex.cpp
+  spt.cpp
+  tinyexpr.cpp
+  graphics.cpp
+  http.cpp
+  assertion_logger.cpp
+  compression.cpp
+  config.cpp
+  console.cpp
+  csv.cpp
+  datafile.cpp
+  demo.cpp
+  econ.cpp
+  engine.cpp
+  fifo.cpp
+  filecollection.cpp
+  global_uuid_manager.cpp
+  host_lookup.cpp
+  http_curl.cpp
+  http_emscripten.cpp
+  huffman.cpp
+  jobs.cpp
+  json.cpp
+  jsonwriter.cpp
+  kernel.cpp
+  linereader.cpp
+  map.cpp
+  masterserver.cpp
+  memheap.cpp
+  netban.cpp
+  network.cpp
+  network_client.cpp
+  network_conn.cpp
+  network_console.cpp
+  network_console_conn.cpp
+  network_server.cpp
+  network_stun.cpp
+  packer.cpp
+  protocol_ex.cpp
+  protocolglue.cpp
+  ringbuffer.cpp
+  serverinfo.cpp
+  sixup_translate_snapshot.cpp
+  snapshot.cpp
+  storage.cpp
+  stun.cpp
+  teehistorian_ex.cpp
+  translation_context.cpp
+  uuid_manager.cpp
+  video.cpp
+  websockets.cpp
+  mapitems_ex.cpp
+  protocol.cpp
+  protocol7.cpp
+  protocolglue_generated.cpp
+  aio.cpp
+  bezier.cpp
+  bytes.cpp
+  color.cpp
+  crashdump.cpp
+  dbg.cpp
+  fs.cpp
+  hash.cpp
+  hash_bundled.cpp
+  hash_libtomcrypt.cpp
+  hash_openssl.cpp
+  io.cpp
+  log.cpp
+  mem.cpp
+  net.cpp
+  os.cpp
+  process.cpp
+  secure.cpp
+  sphore.cpp
+  str.cpp
+  system.cpp
+  thread.cpp
+  time.cpp
+  confusables.cpp
+  confusables_data.cpp
+  tolower.cpp
+  tolower_data.cpp
+  windows.cpp
+  engine-shared.vcxproj -> D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\engine-shared.dir\Release\engine-shared.lib
+  1>Generating src/generated/data_types.h
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  json.c
+  json.vcxproj -> D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\json.dir\Release\json.lib
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  md5.c
+  md5.vcxproj -> D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\md5.dir\Release\md5.lib
+  Generating release/ddnet_engine_shared.lib
+      Updating crates.io index
+     Compiling shlex v1.3.0
+     Compiling proc-macro2 v1.0.103
+     Compiling unicode-ident v1.0.1
+     Compiling quote v1.0.41
+     Compiling cc v1.2.29
+     Compiling cxxbridge-flags v1.0.194
+     Compiling hashbrown v0.17.1
+     Compiling equivalent v1.0.2
+     Compiling indexmap v2.14.0
+     Compiling libc v0.2.183
+     Compiling foldhash v0.2.0
+     Compiling ddnet-engine-shared v0.0.1 (D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\src\engine\shared)
+     Compiling link-cplusplus v1.0.12
+     Compiling cxx v1.0.194
+     Compiling ddnet-test v0.0.1 (D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\src\rust-bridge\test)
+     Compiling syn v2.0.106
+     Compiling cxxbridge-macro v1.0.194
+     Compiling ddnet-base v0.0.1 (D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\src\base)
+     Compiling ddnet-engine v0.0.1 (D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\src\engine)
+      Finished `release` profile [optimized] target(s) in 24.73s
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  adler32.c
+  compress.c
+  crc32.c
+  deflate.c
+  gzclose.c
+  gzlib.c
+  gzread.c
+  gzwrite.c
+  infback.c
+  inffast.c
+  inflate.c
+  inftrees.c
+  trees.c
+  uncompr.c
+  zutil.c
+  zlib.vcxproj -> D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\zlib.dir\Release\zlib.lib
+  2>Generating src/generated/server_data.h
+  1>Generating src/generated/server_data.cpp
+  3>Generating src/generated/wordlist.h
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  antibot.cpp
+  authmanager.cpp
+  connection.cpp
+  connection_pool.cpp
+  mysql.cpp
+  sqlite.cpp
+  name_ban.cpp
+  register.cpp
+  server.cpp
+  server_logger.cpp
+  snap_id_pool.cpp
+  sql_string_helpers.cpp
+  upnp.cpp
+  ddracechat.cpp
+  ddracecommands.cpp
+  character.cpp
+  door.cpp
+  dragger.cpp
+  dragger_beam.cpp
+  gun.cpp
+  laser.cpp
+  light.cpp
+  pickup.cpp
+  plasma.cpp
+  projectile.cpp
+  entity.cpp
+  eventhandler.cpp
+  gamecontext.cpp
+  gamecontroller.cpp
+  ddnet.cpp
+  mod.cpp
+  gameworld.cpp
+  interactions.cpp
+  mutes.cpp
+  player.cpp
+  playermapping.cpp
+  save.cpp
+  score.cpp
+  scoreworker.cpp
+  teams.cpp
+  teehistorian.cpp
+  teeinfo.cpp
+  server_data.cpp
+  game-server-without-main.vcxproj -> D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\game-server-without-main.dir\Release\game-server-without-main.lib
+  1>Generating src/generated/data_types.h
+  2>Generating src/generated/git_revision.cpp
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  collision.cpp
+  gamecore.cpp
+  layers.cpp
+  localization.cpp
+  mapbugs.cpp
+  mapitems.cpp
+  prng.cpp
+  teamscore.cpp
+  git_revision.cpp
+  game-shared.vcxproj -> D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\game-shared.dir\Release\game-shared.lib
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  console.cpp
+  rust_version.cpp
+  rust-bridge-shared.vcxproj -> D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\rust-bridge-shared.dir\Release\rust-bridge-shared.lib
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  glew.c
+  glew.vcxproj -> D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\glew.dir\Release\glew.lib
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  bits.c
+  float.c
+  metadata.c
+  unpack.c
+  words.c
+  wputils.c
+  wavpack.vcxproj -> D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\wavpack.dir\Release\wavpack.lib
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  steam_api_stub.cpp
+     Creating library D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/release/Release/steam_api.lib and object D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/release/Release/steam_api.exp
+  steam_api.vcxproj -> D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\steam_api.dll
+  2>Generating src/generated/client_data.cpp
+  1>Generating src/generated/checksum.cpp
+  4>Generating src/generated/client_data7.cpp
+  3>Generating src/generated/client_data.h
+  4>Generating src/generated/client_data7.h
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  backend_base.cpp
+  glsl_shader_compiler.cpp
+  backend_null.cpp
+  backend_opengl.cpp
+  backend_opengl3.cpp
+  opengl_sl.cpp
+  opengl_sl_program.cpp
+  backend_opengles.cpp
+  backend_opengles3.cpp
+  opengles_sl.cpp
+  opengles_sl_program.cpp
+  backend_vulkan.cpp
+  backend_sdl.cpp
+  blocklist_driver.cpp
+  client.cpp
+  demoedit.cpp
+  discord.cpp
+  favorites.cpp
+  friends.cpp
+  graph.cpp
+  graphics_threaded.cpp
+  graphics_threaded_sprites.cpp
+  input.cpp
+  keynames.cpp
+  notifications.cpp
+  serverbrowser.cpp
+  serverbrowser_http.cpp
+  serverbrowser_ping_cache.cpp
+  sixup_translate_system.cpp
+  smooth_time.cpp
+  sqlite.cpp
+  steam.cpp
+  text.cpp
+  updater.cpp
+  video.cpp
+  warning.cpp
+  animstate.cpp
+  background.cpp
+  binds.cpp
+  broadcast.cpp
+  camera.cpp
+  censor.cpp
+  chat.cpp
+  community_icons.cpp
+  console.cpp
+  controls.cpp
+  countryflags.cpp
+  damageind.cpp
+  debughud.cpp
+  effects.cpp
+  emoticon.cpp
+  anti_spawn_block.cpp
+  auto_dummy_connect.cpp
+  chat_bubbles.cpp
+  commands.cpp
+  freeze_kill.cpp
+  info.cpp
+  map_finish_browser.cpp
+  map_overview.cpp
+  media_player.cpp
+  media_player_dbus.cpp
+  media_player_winrt.cpp
+  menus_entity.cpp
+  mod_menu.cpp
+  moving_tiles.cpp
+D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\src\game\client\components\entity\menus_entity.cpp(2812,15): error C2039: 'SetClipboardText': is not a member of 'IClient' [D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\game-client.vcxproj]
+      D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\src\engine\client.h(41,7):
+      see declaration of 'IClient'
+  
+  performance_statistics.cpp
+  physicball.cpp
+  player_actions.cpp
+  spec_pause_radio.cpp
+  envelope_state.cpp
+  flow.cpp
+  freezebars.cpp
+  hud.cpp
+  important_alert.cpp
+  infomessages.cpp
+  items.cpp
+  key_binder.cpp
+  local_server.cpp
+  mapimages.cpp
+  maplayers.cpp
+  mapsounds.cpp
+  menu_background.cpp
+  menus.cpp
+  menus_browser.cpp
+  menus_demo.cpp
+  menus_ingame.cpp
+  menus_ingame_touch_controls.cpp
+  menus_settings.cpp
+  menus_settings_appearance.cpp
+  menus_settings_assets.cpp
+  menus_settings_controls.cpp
+  menus_settings_credits.cpp
+  menus_settings_ddnet.cpp
+  menus_settings_general.cpp
+  menus_settings_graphics.cpp
+  menus_settings_language.cpp
+  menus_settings_player.cpp
+  menus_settings_sound.cpp
+  menus_settings_tee.cpp
+  menus_settings_tee7.cpp
+  menus_start.cpp
+  motd.cpp
+  nameplates.cpp
+  particles.cpp
+  players.cpp
+  race_demo.cpp
+  scoreboard.cpp
+  skins.cpp
+  skins7.cpp
+  sounds.cpp
+  spectator.cpp
+  statboard.cpp
+  bg_draw.cpp
+  bg_draw_file.cpp
+  bindchat.cpp
+  bindwheel.cpp
+  custom_communities.cpp
+  mumble.cpp
+  outlines.cpp
+  player_indicator.cpp
+  rainbow.cpp
+  scripting.cpp
+  impl.cpp
+  skinprofiles.cpp
+  statusbar.cpp
+  trails.cpp
+  translate.cpp
+  warlist.cpp
+  tooltips.cpp
+  touch_controls.cpp
+  voting.cpp
+  gameclient.cpp
+  laser_data.cpp
+  lineinput.cpp
+  pickup_data.cpp
+  character.cpp
+  door.cpp
+  dragger.cpp
+  laser.cpp
+  pickup.cpp
+  plasma.cpp
+  projectile.cpp
+  gameworld.cpp
+  projectile_data.cpp
+  race.cpp
+  render.cpp
+  sixup_translate_connless.cpp
+  sixup_translate_game.cpp
+  sixup_translate_snapshot.cpp
+  skin.cpp
+  ui.cpp
+  ui_listbox.cpp
+  ui_popups.cpp
+  ui_rect.cpp
+  ui_scrollregion.cpp
+  auto_map.cpp
+  editor.cpp
+  editor_actions.cpp
+  editor_history.cpp
+  editor_object.cpp
+  editor_props.cpp
+  editor_server_settings.cpp
+  editor_trackers.cpp
+  editor_ui.cpp
+  envelope_editor.cpp
+  explanations.cpp
+  file_browser.cpp
+  font_typer.cpp
+  layer_selector.cpp
+  map_grid.cpp
+  map_object.cpp
+  map_view.cpp
+  envelope.cpp
+  envelope_evaluator.cpp
+  image.cpp
+  layer.cpp
+  layer_front.cpp
+  layer_game.cpp
+  layer_group.cpp
+  layer_quads.cpp
+  layer_sounds.cpp
+  layer_speedup.cpp
+  layer_switch.cpp
+  layer_tele.cpp
+  layer_tiles.cpp
+  layer_tune.cpp
+  map.cpp
+  map_io.cpp
+  popups.cpp
+  prompt.cpp
+  proof_mode.cpp
+  quad_art.cpp
+  quad_knife.cpp
+  quick_actions.cpp
+  references.cpp
+  smooth_value.cpp
+  tile_art.cpp
+  envelope_extrema.cpp
+  map_renderer.cpp
+  render_component.cpp
+  render_layer.cpp
+  render_map.cpp
+  checksum.cpp
+  client_data.cpp
+  client_data7.cpp
+  Building Custom Rule D:/a/Entity-Client-DDNet-Zh/Entity-Client-DDNet-Zh/CMakeLists.txt
+  main.cpp
+  game-server.vcxproj -> D:\a\Entity-Client-DDNet-Zh\Entity-Client-DDNet-Zh\release\DDNet-Server.exe
+Error: Process completed with exit code 1.

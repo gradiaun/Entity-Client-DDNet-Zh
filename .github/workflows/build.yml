@@ -23,20 +23,19 @@ jobs:
         include:
         - name: windows-latest
           os: windows-latest
-          cmake-args: -A x64 -DEXCEPTION_HANDLING=ON -DVULKAN=ON -DDISCORD=ON -DTOOLS=OFF
+          cmake-args: -A x64 -DEXCEPTION_HANDLING=ON -DVULKAN=ON -DDISCORD=ON -DTOOLS=OFF -DDOWNLOAD_GTEST=OFF -DDEV=OFF
           cmake-init-env: CXXFLAGS= LDFLAGS=
           package-file: "*-win64.zip"
           executable-suffix: .exe
         - name: ubuntu-22.04
           os: ubuntu-22.04
           cmake-path: /usr/bin/
-          cmake-args: -G "Unix Makefiles" -DTEST_MYSQL=ON -DDISCORD=ON -DDISCORD_DYNAMIC=ON -DPREFER_BUNDLED_LIBS=ON -DTOOLS=OFF
+          cmake-args: -G "Unix Makefiles" -DDISCORD=ON -DDISCORD_DYNAMIC=ON -DPREFER_BUNDLED_LIBS=ON -DTOOLS=OFF -DDOWNLOAD_GTEST=OFF -DDEV=OFF
           cmake-init-env: CXXFLAGS=
-          gtest-env: GTEST_FILTER=-*SQLite*
           package-file: "*-linux_x86_64.tar.xz"
         - name: macOS-latest
           os: macOS-latest
-          cmake-args: -G Ninja -DDISCORD=ON -DTOOLS=OFF
+          cmake-args: -G Ninja -DDISCORD=ON -DTOOLS=OFF -DDOWNLOAD_GTEST=OFF -DDEV=OFF
           cmake-init-env: CXXFLAGS=
           package-file: "*-macos.dmg"
 
@@ -49,36 +48,13 @@ jobs:
       if: contains(matrix.os, 'ubuntu')
       run: |
         sudo apt-get update -y
-        # mount: /var/lib/grub/esp: special device /dev/disk/by-id/scsi-... does not exist.
-        # sudo apt-get upgrade -y
-        packages=(
-          # tidy-alphabetical-start
-          gcovr
-          libavcodec-dev
-          libavformat-dev
-          libavutil-dev
-          libfreetype6-dev
-          libglew-dev
-          libnotify-dev
-          libpng-dev
-          libsdl2-dev
-          libsqlite3-dev
-          libswresample-dev
-          libswscale-dev
-          libx264-dev
-          ninja-build
-          pkg-config
-          valgrind
-          # tidy-alphabetical-end
-        )
-        sudo apt-get install -y "${packages[@]}"
-
-    - name: Prepare Linux
-      if: contains(matrix.os, 'ubuntu')
-      run: |
+        sudo apt-get install -y \
+          libavcodec-dev libavformat-dev libavutil-dev \
+          libfreetype6-dev libglew-dev libnotify-dev libpng-dev \
+          libsdl2-dev libsqlite3-dev libswresample-dev libswscale-dev \
+          libx264-dev ninja-build pkg-config
         curl -LO https://github.com/Kitware/CMake/releases/download/v3.13.4/cmake-3.13.4-Linux-x86_64.tar.gz
         sudo tar --strip-components 1 -C /usr -xf cmake-3.13.4-Linux-x86_64.tar.gz
-        rustup default 1.85.0
 
     - name: Prepare macOS
       if: contains(matrix.os, 'macOS')
@@ -98,39 +74,17 @@ jobs:
 
     - name: Cache Rust dependencies
       uses: Swatinem/rust-cache@v2
-      with:
-          cache-bin: false # WORKAROUND(https://github.com/Swatinem/rust-cache/issues/341)
-          workspaces: |
-              src/mastersrv
-              src/masterping
-              ./
 
-    - name: Build mastersrv
-      if: ${{ !contains(matrix.os, 'ubuntu-22.04') }}
-      run: |
-        cd src/mastersrv
-        cargo build
-
-    - name: Build masterping
-      if: ${{ !contains(matrix.os, 'ubuntu-22.04') }}
-      run: |
-        cd src/masterping
-        cargo build
-
-    - name: Build in release mode
+    - name: Build in release mode and package
       shell: bash
       run: |
         mkdir release
         cd release
-        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Release -DDOWNLOAD_GTEST=OFF -DDEV=OFF -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
+        ${{ matrix.cmake-path }}cmake -E env ${{ matrix.cmake-init-env }} ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
         ${{ matrix.cmake-path }}cmake --build . --config Release --target package_default
-
-    - name: Package and Upload
-      shell: bash
-      run: |
-        cd release
         mkdir -p artifacts
         mv ${{ matrix.package-file }} artifacts/
+
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4

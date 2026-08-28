@@ -88,7 +88,7 @@ public:
 	int64_t DeathCount() const { return m_DeathCounter; }
 	int64_t Playtime() const { return m_Playtime; }
 
-	bool m_WeaponsGot;
+	bool m_WeaponsGot = false;
 
 	void Votekick(const char *pName, const char *pReason);
 
