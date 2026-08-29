@@ -139,13 +139,14 @@ public:
 	enum class EGoresState
 	{
 		IDLE = 0,
-		SWITCH_TO_HAMMER, // 切到锤子
-		FIRE_HAMMER,      // 锤击
-		RESTORE_WEAPON,   // 恢复原武器
+		WAIT_FOR_HAMMER, // 等待武器切换到锤子（基于预测确认）
+		FIRE_HAMMER,     // 锤击
+		RESTORE_WEAPON,  // 恢复手枪
 	};
 	EGoresState m_GoresState = EGoresState::IDLE;
-	int m_GoresRestoreWeapon = 1; // 默认恢复到手枪(WEAPON_GUN=1)
-	int m_GoresPrevFire = 0;      // 上一帧的 m_Fire 值
+	int m_GoresRestoreWeapon = WEAPON_GUN; // 恢复到手枪
+	int m_GoresPrevFire = 0;               // 上一帧的 m_Fire bit
+	int m_GoresWaitFrames = 0;             // WAIT_FOR_HAMMER 的超时计数器
 	void GoresMode();
 
 	int64_t m_JoinTeam;
