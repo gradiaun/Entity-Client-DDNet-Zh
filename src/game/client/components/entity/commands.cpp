@@ -651,6 +651,79 @@ void CEClient::ConListTasks(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CEClient::ConAddAutoReply(IConsole::IResult *pResult, void *pUserData)
+{
+	CEClient *pSelf = (CEClient *)pUserData;
+	const char *pTypeStr = pResult->GetString(0);
+	const char *pPattern = pResult->GetString(1);
+	const char *pResponse = pResult->GetString(2);
+	int Cooldown = (pResult->NumArguments() > 3) ? pResult->GetInteger(3) : 5;
+
+	EAutoReplyTriggerType Type = EAutoReplyTriggerType::CONTAINS;
+	if(!str_comp_nocase(pTypeStr, "regex"))
+		Type = EAutoReplyTriggerType::REGEX;
+	else if(!str_comp_nocase(pTypeStr, "ping"))
+		Type = EAutoReplyTriggerType::PINGED;
+	else if(!str_comp_nocase(pTypeStr, "whisper"))
+		Type = EAutoReplyTriggerType::WHISPER;
+
+	int Id = pSelf->AddAutoReplyRule("ConsoleRule", Type, pPattern, pResponse, Cooldown);
+	if(Id > 0)
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "Auto Reply Rule #%d created (%s)", Id, pTypeStr);
+		pSelf->GameClient()->ClientMessage(aBuf);
+	}
+}
+
+void CEClient::ConRemoveAutoReply(IConsole::IResult *pResult, void *pUserData)
+{
+	CEClient *pSelf = (CEClient *)pUserData;
+	if(pResult->NumArguments() > 0)
+	{
+		int Id = pResult->GetInteger(0);
+		if(pSelf->RemoveAutoReplyRule(Id))
+		{
+			char aBuf[64];
+			str_format(aBuf, sizeof(aBuf), "Auto Reply Rule #%d removed", Id);
+			pSelf->GameClient()->ClientMessage(aBuf);
+		}
+		else
+		{
+			pSelf->GameClient()->ClientMessage("Rule not found");
+		}
+	}
+	else
+	{
+		pSelf->ClearAutoReplyRules();
+		pSelf->GameClient()->ClientMessage("All auto reply rules cleared");
+	}
+}
+
+void CEClient::ConListAutoReply(IConsole::IResult *pResult, void *pUserData)
+{
+	CEClient *pSelf = (CEClient *)pUserData;
+	if(pSelf->m_vAutoReplyRules.empty())
+	{
+		pSelf->GameClient()->ClientMessage("No auto reply rules active");
+		return;
+	}
+
+	pSelf->GameClient()->ClientMessage("=== Auto Reply Rules ===");
+	for(const auto &Rule : pSelf->m_vAutoReplyRules)
+	{
+		const char *pType = "contains";
+		if(Rule.m_TriggerType == EAutoReplyTriggerType::REGEX) pType = "regex";
+		else if(Rule.m_TriggerType == EAutoReplyTriggerType::PINGED) pType = "ping";
+		else if(Rule.m_TriggerType == EAutoReplyTriggerType::WHISPER) pType = "whisper";
+
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "[#%d] %s [%s] '%s' -> '%s' (CD: %ds)",
+			Rule.m_Id, Rule.m_aName, pType, Rule.m_aPattern, Rule.m_aResponse, Rule.m_CooldownSeconds);
+		pSelf->GameClient()->ClientMessage(aBuf);
+	}
+}
+
 void CEClient::ConCrash(IConsole::IResult *pResult, void *pUserData)
 {
 	exit(666);
@@ -685,6 +758,11 @@ void CEClient::OnConsoleInit()
 	Console()->Register("interval", "i[milliseconds] r[command]", CFGFLAG_CLIENT, ConInterval, this, "Repeatedly execute a command every interval in milliseconds");
 	Console()->Register("stop_tasks", "?i[id]", CFGFLAG_CLIENT, ConStopTasks, this, "Stop all scheduled tasks or a specific task by ID");
 	Console()->Register("list_tasks", "", CFGFLAG_CLIENT, ConListTasks, this, "List all active scheduled tasks");
+
+	// Auto Reply System
+	Console()->Register("add_autoreply", "s[contains|regex|ping|whisper] s[pattern] r[response] ?i[cooldown]", CFGFLAG_CLIENT, ConAddAutoReply, this, "Add an auto reply rule");
+	Console()->Register("remove_autoreply", "?i[id]", CFGFLAG_CLIENT, ConRemoveAutoReply, this, "Remove an auto reply rule by ID or clear all");
+	Console()->Register("list_autoreply", "", CFGFLAG_CLIENT, ConListAutoReply, this, "List all active auto reply rules");
 
 	// Skin Saving/Restoing
 	Console()->Register("restoreskin", "", CFGFLAG_CLIENT, ConRestoreSkin, this, "Restore Your Saved Info");

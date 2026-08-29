@@ -165,10 +165,42 @@ public:
 	bool RemoveScheduledTask(int Id);
 	void ClearScheduledTasks();
 
+	enum class EAutoReplyTriggerType
+	{
+		CONTAINS = 0,
+		REGEX,
+		PINGED,
+		WHISPER
+	};
+
+	struct CAutoReplyRule
+	{
+		int m_Id = 0;
+		char m_aName[64] = {0};
+		EAutoReplyTriggerType m_TriggerType = EAutoReplyTriggerType::CONTAINS;
+		char m_aPattern[256] = {0};
+		char m_aResponse[256] = {0};
+		int m_CooldownSeconds = 5;
+		bool m_Active = true;
+		int64_t m_LastTriggeredTime = 0;
+	};
+
+	std::vector<CAutoReplyRule> m_vAutoReplyRules;
+	int m_NextAutoReplyRuleId = 1;
+
+	void CheckAutoReply(int ClientId, int Team, const char *pMsg);
+	int AddAutoReplyRule(const char *pName, EAutoReplyTriggerType TriggerType, const char *pPattern, const char *pResponse, int CooldownSeconds);
+	bool RemoveAutoReplyRule(int Id);
+	void ClearAutoReplyRules();
+
 	static void ConTimeout(IConsole::IResult *pResult, void *pUserData);
 	static void ConInterval(IConsole::IResult *pResult, void *pUserData);
 	static void ConStopTasks(IConsole::IResult *pResult, void *pUserData);
 	static void ConListTasks(IConsole::IResult *pResult, void *pUserData);
+
+	static void ConAddAutoReply(IConsole::IResult *pResult, void *pUserData);
+	static void ConRemoveAutoReply(IConsole::IResult *pResult, void *pUserData);
+	static void ConListAutoReply(IConsole::IResult *pResult, void *pUserData);
 
 	bool m_FirstLaunch = false;
 

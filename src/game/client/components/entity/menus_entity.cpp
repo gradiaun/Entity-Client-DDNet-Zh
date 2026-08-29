@@ -2676,7 +2676,7 @@ void CMenus::RenderSettingsExtensions(CUIRect MainView)
 			ESettingsModuleColumn::LEFT,
 			{"task", "scheduler", "timer", "timeout", "interval", "loop", "afk"},
 			[](bool HasSearch) {
-				return 160.0f;
+				return 175.0f;
 			},
 			[&](CUIRect ModuleRect, bool HasSearch) {
 				ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
@@ -2684,25 +2684,42 @@ void CMenus::RenderSettingsExtensions(CUIRect MainView)
 
 				ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
 				Ui()->DoLabel(&Button, EcLocalize("Task Scheduler"), HeaderSize, HeaderAlignment);
+				ModuleRect.HSplitTop(4.0f, nullptr, &ModuleRect);
 
 				static CLineInputBuffered<64> s_TaskCmdInput;
 				static CLineInputBuffered<16> s_TaskIntervalInput;
-				if(s_TaskIntervalInput.GetString()[0] == '\0')
+				static bool s_InitSchedulerInputs = false;
+				if(!s_InitSchedulerInputs)
+				{
 					s_TaskIntervalInput.Set("1000");
+					s_TaskCmdInput.SetEmptyText("say Hello! / +jump");
+					s_TaskIntervalInput.SetEmptyText("1000");
+					s_InitSchedulerInputs = true;
+				}
 
+				const float LabelWidth = 85.0f;
+				const float ItemSpacing = 5.0f;
+
+				// 1. 指令输入行
 				CUIRect Row;
 				ModuleRect.HSplitTop(LineSize, &Row, &ModuleRect);
 				CUIRect LabelRect, InputRect;
-				Row.VSplitLeft(70.0f, &LabelRect, &InputRect);
+				Row.VSplitLeft(LabelWidth, &LabelRect, &InputRect);
 				Ui()->DoLabel(&LabelRect, EcLocalize("Command:"), FontSize, TEXTALIGN_ML);
 				Ui()->DoEditBox(&s_TaskCmdInput, &InputRect, FontSize);
 
+				ModuleRect.HSplitTop(ItemSpacing, nullptr, &ModuleRect);
+
+				// 2. 间隔时间输入行
 				ModuleRect.HSplitTop(LineSize, &Row, &ModuleRect);
-				Row.VSplitLeft(70.0f, &LabelRect, &InputRect);
+				Row.VSplitLeft(LabelWidth, &LabelRect, &InputRect);
 				Ui()->DoLabel(&LabelRect, EcLocalize("Interval(ms):"), FontSize, TEXTALIGN_ML);
 				Ui()->DoEditBox(&s_TaskIntervalInput, &InputRect, FontSize);
 
-				ModuleRect.HSplitTop(LineSize, &Row, &ModuleRect);
+				ModuleRect.HSplitTop(ItemSpacing + 2.0f, nullptr, &ModuleRect);
+
+				// 3. 任务操作按钮组
+				ModuleRect.HSplitTop(LineSize + 2.0f, &Row, &ModuleRect);
 				CUIRect BtnTimeout, BtnInterval, BtnStop;
 				Row.VSplitLeft(Row.w / 3.0f - 2.0f, &BtnTimeout, &Row);
 				Row.VSplitLeft(4.0f, nullptr, &Row);
@@ -2725,11 +2742,125 @@ void CMenus::RenderSettingsExtensions(CUIRect MainView)
 					GameClient()->ClientMessage("All scheduled tasks stopped");
 				}
 
+				ModuleRect.HSplitTop(ItemSpacing, nullptr, &ModuleRect);
+
+				// 4. 当前状态栏
 				CUIRect StatusRect;
 				ModuleRect.HSplitTop(LineSize, &StatusRect, &ModuleRect);
 				char aStatus[64];
 				str_format(aStatus, sizeof(aStatus), "%s: %d", EcLocalize("Active Tasks"), (int)GameClient()->m_EClient.m_vScheduledTasks.size());
 				Ui()->DoLabel(&StatusRect, aStatus, FontSize * 0.9f, TEXTALIGN_ML);
+			},
+		});
+
+		vModules.push_back({
+			ESettingsModuleColumn::LEFT,
+			{"auto", "reply", "chat", "message", "keyword", "regex", "ping", "whisper"},
+			[](bool HasSearch) {
+				return 205.0f;
+			},
+			[&](CUIRect ModuleRect, bool HasSearch) {
+				ModuleRect.Draw(BackgroundColor, IGraphics::CORNER_ALL, CornerRoundness);
+				ModuleRect.VMargin(Margin, &ModuleRect);
+
+				ModuleRect.HSplitTop(HeaderHeight, &Button, &ModuleRect);
+				Ui()->DoLabel(&Button, EcLocalize("Auto Reply Rules"), HeaderSize, HeaderAlignment);
+				ModuleRect.HSplitTop(4.0f, nullptr, &ModuleRect);
+
+				static CLineInputBuffered<64> s_ReplyKeywordInput;
+				static CLineInputBuffered<128> s_ReplyResponseInput;
+				static CLineInputBuffered<16> s_ReplyCdInput;
+				static int s_ReplyTypeIndex = 0;
+				static bool s_InitReplyInputs = false;
+				if(!s_InitReplyInputs)
+				{
+					s_ReplyCdInput.Set("5");
+					s_ReplyKeywordInput.SetEmptyText("hello / (hi|你好)");
+					s_ReplyResponseInput.SetEmptyText("Hello {player}! Current time: {time}");
+					s_ReplyCdInput.SetEmptyText("5");
+					s_InitReplyInputs = true;
+				}
+
+				const float LabelWidth = 85.0f;
+				const float ItemSpacing = 4.0f;
+
+				// 1. 匹配类型切换
+				CUIRect Row;
+				ModuleRect.HSplitTop(LineSize, &Row, &ModuleRect);
+				CUIRect LabelRect, InputRect;
+				Row.VSplitLeft(LabelWidth, &LabelRect, &InputRect);
+				Ui()->DoLabel(&LabelRect, EcLocalize("Trigger:"), FontSize, TEXTALIGN_ML);
+
+				const char *apTypes[] = {
+					EcLocalize("Contains"),
+					EcLocalize("Regex"),
+					EcLocalize("Pinged"),
+					EcLocalize("Whisper")
+				};
+				CUIRect TypeBtn;
+				for(int i = 0; i < 4; i++)
+				{
+					InputRect.VSplitLeft(InputRect.w / (4.0f - i) - (i < 3 ? 2.0f : 0.0f), &TypeBtn, &InputRect);
+					if(i < 3) InputRect.VSplitLeft(2.0f, nullptr, &InputRect);
+
+					static CButtonContainer s_aTypeBtns[4];
+					if(DoButton_MenuTab(&s_aTypeBtns[i], apTypes[i], s_ReplyTypeIndex == i, 0, &TypeBtn))
+					{
+						s_ReplyTypeIndex = i;
+					}
+				}
+
+				ModuleRect.HSplitTop(ItemSpacing, nullptr, &ModuleRect);
+
+				// 2. 匹配关键词/正则
+				ModuleRect.HSplitTop(LineSize, &Row, &ModuleRect);
+				Row.VSplitLeft(LabelWidth, &LabelRect, &InputRect);
+				Ui()->DoLabel(&LabelRect, EcLocalize("Keyword:"), FontSize, TEXTALIGN_ML);
+				Ui()->DoEditBox(&s_ReplyKeywordInput, &InputRect, FontSize);
+
+				ModuleRect.HSplitTop(ItemSpacing, nullptr, &ModuleRect);
+
+				// 3. 回复模板文本
+				ModuleRect.HSplitTop(LineSize, &Row, &ModuleRect);
+				Row.VSplitLeft(LabelWidth, &LabelRect, &InputRect);
+				Ui()->DoLabel(&LabelRect, EcLocalize("Response:"), FontSize, TEXTALIGN_ML);
+				Ui()->DoEditBox(&s_ReplyResponseInput, &InputRect, FontSize);
+
+				ModuleRect.HSplitTop(ItemSpacing, nullptr, &ModuleRect);
+
+				// 4. 冷却时间与操作按钮
+				ModuleRect.HSplitTop(LineSize + 2.0f, &Row, &ModuleRect);
+				CUIRect CdLabelRect, CdInputRect, BtnAdd, BtnClear;
+				Row.VSplitLeft(LabelWidth, &CdLabelRect, &Row);
+				Ui()->DoLabel(&CdLabelRect, EcLocalize("CD (sec):"), FontSize, TEXTALIGN_ML);
+				Row.VSplitLeft(40.0f, &CdInputRect, &Row);
+				Ui()->DoEditBox(&s_ReplyCdInput, &CdInputRect, FontSize);
+				Row.VSplitLeft(8.0f, nullptr, &Row);
+
+				Row.VSplitLeft(Row.w / 2.0f - 2.0f, &BtnAdd, &BtnClear);
+
+				static CButtonContainer s_BtnAddReply, s_BtnClearReply;
+				if(DoButton_Menu(&s_BtnAddReply, EcLocalize("Add Rule"), 0, &BtnAdd))
+				{
+					int Cd = str_toint(s_ReplyCdInput.GetString());
+					CEClient::EAutoReplyTriggerType Type = (CEClient::EAutoReplyTriggerType)s_ReplyTypeIndex;
+					GameClient()->m_EClient.AddAutoReplyRule("UIRule", Type, s_ReplyKeywordInput.GetString(), s_ReplyResponseInput.GetString(), Cd);
+				}
+				if(DoButton_Menu(&s_BtnClearReply, EcLocalize("Clear Rules"), 0, &BtnClear))
+				{
+					GameClient()->m_EClient.ClearAutoReplyRules();
+					GameClient()->ClientMessage("All auto reply rules cleared");
+				}
+
+				ModuleRect.HSplitTop(ItemSpacing, nullptr, &ModuleRect);
+
+				// 5. 规则统计与模板提示
+				CUIRect StatusRect;
+				ModuleRect.HSplitTop(LineSize, &StatusRect, &ModuleRect);
+				char aStatus[128];
+				str_format(aStatus, sizeof(aStatus), "%s: %d | Vars: {player}, {time}, {date}, {msg}",
+					EcLocalize("Active Rules"), (int)GameClient()->m_EClient.m_vAutoReplyRules.size());
+				Ui()->DoLabel(&StatusRect, aStatus, FontSize * 0.82f, TEXTALIGN_ML);
 			},
 		});
 

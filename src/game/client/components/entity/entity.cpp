@@ -29,7 +29,10 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <ctime>
 #include <memory>
+#include <regex>
+#include <string>
 #if defined(CONF_FAMILY_WINDOWS)
 #include <Windows.h>
 #endif
@@ -121,7 +124,166 @@ void CEClient::OnMessage(int MsgType, void *pRawMsg)
 	{
 		CNetMsg_Sv_Chat *pMsg = (CNetMsg_Sv_Chat *)pRawMsg;
 		OnChatMessage(pMsg->m_ClientId, pMsg->m_Team, pMsg->m_pMessage);
+		CheckAutoReply(pMsg->m_ClientId, pMsg->m_Team, pMsg->m_pMessage);
 	}
+}
+
+void CEClient::CheckAutoReply(int ClientId, int Team, const char *pMsg)
+{
+	if(ClientId < 0 || ClientId >= MAX_CLIENTS || !pMsg || pMsg[0] == '\0')
+		return;
+
+	// 不响应自己或自己的分身
+	const char *pSenderName = GameClient()->m_aClients[ClientId].m_aName;
+	if(!str_comp(pSenderName, GameClient()->m_aClients[GameClient()->m_aLocalIds[0]].m_aName))
+		return;
+	if(Client()->DummyConnected() && !str_comp(pSenderName, GameClient()->m_aClients[GameClient()->m_aLocalIds[1]].m_aName))
+		return;
+
+	// 被屏蔽者静音
+	if(GameClient()->m_WarList.m_WarPlayers[ClientId].m_IsMuted)
+		return;
+
+	int64_t Now = time_get();
+	bool IsHighlighted = GameClient()->m_Chat.LineHighlighted(ClientId, pMsg);
+	bool IsWhisper = (Team == TEAM_WHISPER_RECV);
+
+	for(auto &Rule : m_vAutoReplyRules)
+	{
+		if(!Rule.m_Active)
+			continue;
+
+		// 冷却时间检查 (秒)
+		if(Rule.m_LastTriggeredTime > 0 && (Now - Rule.m_LastTriggeredTime) < time_freq() * Rule.m_CooldownSeconds)
+			continue;
+
+		bool Matched = false;
+		switch(Rule.m_TriggerType)
+		{
+		case EAutoReplyTriggerType::CONTAINS:
+			if(Rule.m_aPattern[0] != '\0' && str_find_nocase(pMsg, Rule.m_aPattern))
+				Matched = true;
+			break;
+		case EAutoReplyTriggerType::REGEX:
+			if(Rule.m_aPattern[0] != '\0')
+			{
+				try
+				{
+					std::regex Reg(Rule.m_aPattern, std::regex_constants::icase);
+					Matched = std::regex_search(pMsg, Reg);
+				}
+				catch(...)
+				{
+					// 非法正则忽略
+				}
+			}
+			break;
+		case EAutoReplyTriggerType::PINGED:
+			if(IsHighlighted)
+			{
+				if(Rule.m_aPattern[0] == '\0' || str_find_nocase(pMsg, Rule.m_aPattern))
+					Matched = true;
+			}
+			break;
+		case EAutoReplyTriggerType::WHISPER:
+			if(IsWhisper)
+			{
+				if(Rule.m_aPattern[0] == '\0' || str_find_nocase(pMsg, Rule.m_aPattern))
+					Matched = true;
+			}
+			break;
+		}
+
+		if(Matched)
+		{
+			Rule.m_LastTriggeredTime = Now;
+
+			// 模板变量替换: {player}, {msg}, {time}, {date}
+			std::string Formatted = Rule.m_aResponse;
+
+			// 替换 {player} / {name}
+			size_t Pos = 0;
+			while((Pos = Formatted.find("{player}")) != std::string::npos)
+				Formatted.replace(Pos, 8, pSenderName);
+			while((Pos = Formatted.find("{name}")) != std::string::npos)
+				Formatted.replace(Pos, 6, pSenderName);
+
+			// 替换 {msg}
+			while((Pos = Formatted.find("{msg}")) != std::string::npos)
+				Formatted.replace(Pos, 5, pMsg);
+
+			// 替换 {time} 与 {date}
+			time_t RawTime = time(nullptr);
+			struct tm *TimeInfo = localtime(&RawTime);
+			if(TimeInfo)
+			{
+				char aTimeBuf[32];
+				strftime(aTimeBuf, sizeof(aTimeBuf), "%H:%M", TimeInfo);
+				while((Pos = Formatted.find("{time}")) != std::string::npos)
+					Formatted.replace(Pos, 6, aTimeBuf);
+
+				char aDateBuf[32];
+				strftime(aDateBuf, sizeof(aDateBuf), "%Y-%m-%d", TimeInfo);
+				while((Pos = Formatted.find("{date}")) != std::string::npos)
+					Formatted.replace(Pos, 6, aDateBuf);
+			}
+
+			// 发送聊天回复 (若为私聊或以 /w 开头)
+			if(IsWhisper && !str_startswith_nocase(Formatted.c_str(), "/w "))
+			{
+				char aWhisperBuf[512];
+				str_format(aWhisperBuf, sizeof(aWhisperBuf), "/w %s %s", pSenderName, Formatted.c_str());
+				GameClient()->m_Chat.SendChat(TEAM_FLOCK, aWhisperBuf);
+			}
+			else
+			{
+				GameClient()->m_Chat.SendChat(TEAM_FLOCK, Formatted.c_str());
+			}
+			break;
+		}
+	}
+}
+
+int CEClient::AddAutoReplyRule(const char *pName, EAutoReplyTriggerType TriggerType, const char *pPattern, const char *pResponse, int CooldownSeconds)
+{
+	if(!pResponse || pResponse[0] == '\0')
+		return -1;
+
+	CAutoReplyRule Rule;
+	Rule.m_Id = m_NextAutoReplyRuleId++;
+	if(pName && pName[0] != '\0')
+		str_copy(Rule.m_aName, pName, sizeof(Rule.m_aName));
+	else
+		str_format(Rule.m_aName, sizeof(Rule.m_aName), "Rule #%d", Rule.m_Id);
+
+	Rule.m_TriggerType = TriggerType;
+	if(pPattern)
+		str_copy(Rule.m_aPattern, pPattern, sizeof(Rule.m_aPattern));
+	str_copy(Rule.m_aResponse, pResponse, sizeof(Rule.m_aResponse));
+	Rule.m_CooldownSeconds = std::max(1, CooldownSeconds);
+	Rule.m_Active = true;
+	Rule.m_LastTriggeredTime = 0;
+
+	m_vAutoReplyRules.push_back(Rule);
+	return Rule.m_Id;
+}
+
+bool CEClient::RemoveAutoReplyRule(int Id)
+{
+	for(auto it = m_vAutoReplyRules.begin(); it != m_vAutoReplyRules.end(); ++it)
+	{
+		if(it->m_Id == Id)
+		{
+			m_vAutoReplyRules.erase(it);
+			return true;
+		}
+	}
+	return false;
+}
+
+void CEClient::ClearAutoReplyRules()
+{
+	m_vAutoReplyRules.clear();
 }
 
 void CEClient::AutoJoinTeam()
