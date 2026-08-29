@@ -35,20 +35,9 @@
 #include <string>
 #if defined(CONF_FAMILY_WINDOWS)
 #include <Windows.h>
+// Note: TlHelp32/processthreadsapi removed - process enumeration triggers AV heuristics
 #endif
 
-#if defined(CONF_FAMILY_WINDOWS)
-#include <TlHelp32.h>
-#include <processthreadsapi.h>
-
-static bool IsDiscordProcessName(const wchar_t *pProcessName)
-{
-	return _wcsicmp(pProcessName, L"Discord.exe") == 0 ||
-	       _wcsicmp(pProcessName, L"DiscordCanary.exe") == 0 ||
-	       _wcsicmp(pProcessName, L"DiscordPTB.exe") == 0 ||
-	       _wcsicmp(pProcessName, L"DiscordSystemHelper.exe") == 0;
-}
-#endif
 
 void CEClient::OnChatMessage(int ClientId, int Team, const char *pMsg)
 {
@@ -706,47 +695,10 @@ void CEClient::StartDiscordPriorityThread()
 
 void CEClient::SetDiscordProcessesNormalPriority()
 {
-#if defined(CONF_FAMILY_WINDOWS)
-	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-	if(hSnapshot == INVALID_HANDLE_VALUE)
-	{
-		log_info("entity-client", "Failed to create process snapshot");
-		return;
-	}
-
-	PROCESSENTRY32 Entry;
-	mem_zero(&Entry, sizeof(Entry));
-	Entry.dwSize = sizeof(Entry);
-
-	int Changed = 0;
-	int Failed = 0;
-
-	if(Process32First(hSnapshot, &Entry))
-	{
-		do
-		{
-			if(!IsDiscordProcessName(Entry.szExeFile))
-				continue;
-
-			HANDLE hProcess = OpenProcess(PROCESS_SET_INFORMATION | PROCESS_QUERY_LIMITED_INFORMATION, FALSE, Entry.th32ProcessID);
-			if(!hProcess)
-			{
-				Failed++;
-				continue;
-			}
-
-			if(SetPriorityClass(hProcess, NORMAL_PRIORITY_CLASS))
-				Changed++;
-			else
-				Failed++;
-
-			CloseHandle(hProcess);
-		} while(Process32Next(hSnapshot, &Entry));
-	}
-
-	CloseHandle(hSnapshot);
-#endif
+	// Process enumeration removed to avoid AV false positives.
+	// Discord priority adjustment is a non-critical feature.
 }
+
 
 void CEClient::OnInit()
 {
