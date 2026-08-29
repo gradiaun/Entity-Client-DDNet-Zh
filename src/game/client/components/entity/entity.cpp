@@ -213,7 +213,7 @@ void CEClient::CheckAutoReply(int ClientId, int Team, const char *pMsg)
 				Formatted.replace(Pos, 5, pMsg);
 
 			// 替换 {time} 与 {date}
-			time_t RawTime = time(nullptr);
+			time_t RawTime = ::time(nullptr);
 			struct tm *TimeInfo = localtime(&RawTime);
 			if(TimeInfo)
 			{
