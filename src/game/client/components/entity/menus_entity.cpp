@@ -2804,7 +2804,7 @@ void CMenus::RenderSettingsExtensions(CUIRect MainView)
 					if(i < 3) InputRect.VSplitLeft(2.0f, nullptr, &InputRect);
 
 					static CButtonContainer s_aTypeBtns[4];
-					if(DoButton_MenuTab(&s_aTypeBtns[i], apTypes[i], s_ReplyTypeIndex == i, 0, &TypeBtn))
+					if(DoButton_MenuTab(&s_aTypeBtns[i], apTypes[i], s_ReplyTypeIndex == i, &TypeBtn, 0))
 					{
 						s_ReplyTypeIndex = i;
 					}
