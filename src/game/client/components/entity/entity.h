@@ -134,6 +134,18 @@ public:
 	}
 
 	bool m_HadExtraWeapons = false;
+
+	// Gores 状态机
+	enum class EGoresState
+	{
+		IDLE = 0,
+		SWITCH_TO_HAMMER, // 切到锤子
+		FIRE_HAMMER,      // 锤击
+		RESTORE_WEAPON,   // 恢复原武器
+	};
+	EGoresState m_GoresState = EGoresState::IDLE;
+	int m_GoresRestoreWeapon = 1; // 默认恢复到手枪(WEAPON_GUN=1)
+	int m_GoresPrevFire = 0;      // 上一帧的 m_Fire 值
 	void GoresMode();
 
 	int64_t m_JoinTeam;

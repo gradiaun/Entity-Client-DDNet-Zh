@@ -376,26 +376,99 @@ void CEClient::AutoJoinTeam()
 
 void CEClient::GoresMode()
 {
-	if(!GameClient()->m_Snap.m_pLocalCharacter)
-		return;
-
-	CCharacterCore Core = GameClient()->m_PredictedPrevChar;
-	bool HasExtraWeapons = (Core.m_aWeapons[WEAPON_GRENADE].m_Got || Core.m_aWeapons[WEAPON_LASER].m_Got || Core.m_aWeapons[WEAPON_SHOTGUN].m_Got);
-
-	if(g_Config.m_ClGoresModeDisableIfWeapons)
+	// --- 1. "有重武器时禁用" 检测（原有逻辑保留）---
+	if(GameClient()->m_Snap.m_pLocalCharacter)
 	{
-		// Check on newly acquired weapons: if player just got a heavy weapon, execute a one-time disable
-		if(HasExtraWeapons && !m_HadExtraWeapons)
+		CCharacterCore Core = GameClient()->m_PredictedPrevChar;
+		bool HasExtraWeapons = (Core.m_aWeapons[WEAPON_GRENADE].m_Got ||
+		                        Core.m_aWeapons[WEAPON_LASER].m_Got ||
+		                        Core.m_aWeapons[WEAPON_SHOTGUN].m_Got);
+
+		if(g_Config.m_ClGoresModeDisableIfWeapons)
 		{
-			if(g_Config.m_ClGoresMode)
+			if(HasExtraWeapons && !m_HadExtraWeapons)
 			{
-				g_Config.m_ClGoresMode = 0;
-				GameClient()->ClientMessage("Gores Mode: Disabled (acquired heavy weapon)");
+				if(g_Config.m_ClGoresMode)
+				{
+					g_Config.m_ClGoresMode = 0;
+					m_GoresState = EGoresState::IDLE;
+					GameClient()->ClientMessage("Gores Mode: Disabled (acquired heavy weapon)");
+				}
 			}
 		}
+		m_HadExtraWeapons = HasExtraWeapons;
 	}
-	m_HadExtraWeapons = HasExtraWeapons;
 	m_WeaponsGot = false;
+
+	// --- 2. Gores 切枪状态机 ---
+	if(!g_Config.m_ClGoresMode)
+	{
+		m_GoresState = EGoresState::IDLE;
+		return;
+	}
+
+	if(!GameClient()->m_Snap.m_pLocalCharacter)
+	{
+		m_GoresState = EGoresState::IDLE;
+		return;
+	}
+
+	// 如果在观察模式，什么都不做
+	if(GameClient()->m_Snap.m_SpecInfo.m_Active)
+	{
+		m_GoresState = EGoresState::IDLE;
+		return;
+	}
+
+	int Dummy = g_Config.m_ClDummy;
+	CNetObj_PlayerInput &Input = GameClient()->m_Controls.m_aInputData[Dummy];
+
+	// 当前快照里的武器
+	int CurrentWeapon = GameClient()->m_Snap.m_pLocalCharacter->m_Weapon;
+	int CurFire = Input.m_Fire;
+
+	switch(m_GoresState)
+	{
+	case EGoresState::IDLE:
+	{
+		// 检测玩家刚刚按下开枪（Fire bit 0 从 0→1），且当前武器不是锤子
+		bool FirePressed = (CurFire & 1) && !(m_GoresPrevFire & 1);
+		if(FirePressed && CurrentWeapon != WEAPON_HAMMER)
+		{
+			// 记录要恢复的武器（Gores 模式下只用手枪，恢复到 GUN）
+			m_GoresRestoreWeapon = WEAPON_GUN;
+			// 取消本帧的开枪，切到锤子
+			Input.m_Fire &= ~1;
+			Input.m_WantedWeapon = WEAPON_HAMMER + 1; // 协议里 WantedWeapon 是 1-indexed，0 表示不切
+			m_GoresState = EGoresState::FIRE_HAMMER;
+		}
+		break;
+	}
+
+	case EGoresState::FIRE_HAMMER:
+	{
+		// 这一帧：强制持锤并开枪
+		Input.m_WantedWeapon = WEAPON_HAMMER + 1;
+		Input.m_Fire |= 1; // 触发锤击
+		m_GoresState = EGoresState::RESTORE_WEAPON;
+		break;
+	}
+
+	case EGoresState::RESTORE_WEAPON:
+	{
+		// 恢复手枪，取消锤击 fire 继续
+		Input.m_WantedWeapon = m_GoresRestoreWeapon + 1;
+		Input.m_Fire &= ~1;
+		m_GoresState = EGoresState::IDLE;
+		break;
+	}
+
+	default:
+		m_GoresState = EGoresState::IDLE;
+		break;
+	}
+
+	m_GoresPrevFire = CurFire;
 }
 
 void CEClient::OnConnect(int Conn)
