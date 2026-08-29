@@ -133,19 +133,6 @@ public:
 		return 0xFF000000 | R | G | B;
 	}
 
-	enum class EGoresState
-	{
-		IDLE = 0,
-		SWITCH_TO_HAMMER,
-		HAMMER_FIRING,
-		RESTORE_WEAPON
-	};
-
-	EGoresState m_GoresState[2] = {EGoresState::IDLE, EGoresState::IDLE};
-	int m_GoresPrevWeapon[2] = {WEAPON_GUN, WEAPON_GUN};
-	int64_t m_GoresLockTime[2] = {0, 0};
-	bool m_GoresPendingFire[2] = {false, false};
-
 	bool m_HadExtraWeapons = false;
 	void GoresMode();
 

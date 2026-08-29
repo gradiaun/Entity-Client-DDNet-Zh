@@ -142,6 +142,18 @@ bool CBinds::OnInput(const IInput::CEvent &Event)
 						m_MouseOnAction = true;
 					}
 				}
+				if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire"))
+				{
+					int CurWeapon = (GameClient()->m_Snap.m_pLocalCharacter) ? GameClient()->m_Snap.m_pLocalCharacter->m_Weapon : -1;
+					if(CurWeapon == WEAPON_HAMMER)
+					{
+						str_copy(aBind, "+fire;+weapon2", sizeof(aBind));
+					}
+					else
+					{
+						str_copy(aBind, "+weapon1;+fire;+weapon2", sizeof(aBind));
+					}
+				}
 				Console()->ExecuteLineStroked(1, aBind, IConsole::CLIENT_ID_UNSPECIFIED);
 				m_vActiveBinds.emplace_back(Event.m_Key, Mask);
 			};
@@ -165,7 +177,21 @@ bool CBinds::OnInput(const IInput::CEvent &Event)
 			// Have to check for nullptr again because the previous execute can unbind itself
 			if(m_aapKeyBindings[ActiveBind->m_ModifierMask][ActiveBind->m_Key])
 			{
-				Console()->ExecuteLineStroked(1, m_aapKeyBindings[ActiveBind->m_ModifierMask][ActiveBind->m_Key], IConsole::CLIENT_ID_UNSPECIFIED);
+				char aBind[512];
+				str_copy(aBind, m_aapKeyBindings[ActiveBind->m_ModifierMask][ActiveBind->m_Key], sizeof(aBind));
+				if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire"))
+				{
+					int CurWeapon = (GameClient()->m_Snap.m_pLocalCharacter) ? GameClient()->m_Snap.m_pLocalCharacter->m_Weapon : -1;
+					if(CurWeapon == WEAPON_HAMMER)
+					{
+						str_copy(aBind, "+fire;+weapon2", sizeof(aBind));
+					}
+					else
+					{
+						str_copy(aBind, "+weapon1;+fire;+weapon2", sizeof(aBind));
+					}
+				}
+				Console()->ExecuteLineStroked(1, aBind, IConsole::CLIENT_ID_UNSPECIFIED);
 			}
 			Handled = true;
 		}
@@ -188,7 +214,13 @@ bool CBinds::OnInput(const IInput::CEvent &Event)
 				return;
 			}
 
-			Console()->ExecuteLineStroked(0, m_aapKeyBindings[Bind.m_ModifierMask][Bind.m_Key], IConsole::CLIENT_ID_UNSPECIFIED);
+			char aBind[512];
+			str_copy(aBind, m_aapKeyBindings[Bind.m_ModifierMask][Bind.m_Key], sizeof(aBind));
+			if(g_Config.m_ClGoresMode && !GameClient()->m_EClient.m_WeaponsGot && str_find(aBind, "+fire"))
+			{
+				str_copy(aBind, "+fire;+weapon2", sizeof(aBind));
+			}
+			Console()->ExecuteLineStroked(0, aBind, IConsole::CLIENT_ID_UNSPECIFIED);
 		};
 
 		// Release active bind that uses this primary key
