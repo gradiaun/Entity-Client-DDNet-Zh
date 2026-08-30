@@ -26,18 +26,72 @@
 #include <game/gamecore.h>
 #include <game/teamscore.h>
 
-#include <algorithm>
-#include <cmath>
+#include <cctype>
 #include <cstring>
 #include <ctime>
-#include <memory>
-#include <regex>
 #include <string>
 #if defined(CONF_FAMILY_WINDOWS)
 #include <Windows.h>
 // Note: TlHelp32/processthreadsapi removed - process enumeration triggers AV heuristics
 #endif
 
+// 通配符匹配：支持 * (任意多字符) 和 ? (任意单字符)，大小写不敏感
+// 替代 std::regex，避免 AV 启发式误报
+static bool WildcardMatch(const char *pStr, const char *pPattern)
+{
+	while(*pPattern)
+	{
+		if(*pPattern == '*')
+		{
+			++pPattern;
+			if(!*pPattern)
+				return true;
+			while(*pStr)
+			{
+				if(WildcardMatch(pStr, pPattern))
+					return true;
+				++pStr;
+			}
+			return false;
+		}
+		if(!*pStr)
+			return false;
+		if(*pPattern != '?' && (char)tolower((unsigned char)*pStr) != (char)tolower((unsigned char)*pPattern))
+			return false;
+		++pStr;
+		++pPattern;
+	}
+	return !*pStr;
+}
+
+// 简单字符串替换（用栈缓冲区，避免 std::string 模板特征）
+static void InplaceReplace(char *pBuf, int BufSize, const char *pFind, const char *pReplace)
+{
+	int FindLen = str_length(pFind);
+	int ReplaceLen = str_length(pReplace);
+	char aTmp[1024];
+	char *pWrite = aTmp;
+	const char *pRead = pBuf;
+	int Remaining = (int)sizeof(aTmp) - 1;
+	while(*pRead && Remaining > 0)
+	{
+		if(str_startswith(pRead, pFind))
+		{
+			int Take = minimum(ReplaceLen, Remaining);
+			mem_copy(pWrite, pReplace, Take);
+			pWrite += Take;
+			Remaining -= Take;
+			pRead += FindLen;
+		}
+		else
+		{
+			*pWrite++ = *pRead++;
+			--Remaining;
+		}
+	}
+	*pWrite = '\0';
+	str_copy(pBuf, aTmp, BufSize);
+}
 
 void CEClient::OnChatMessage(int ClientId, int Team, const char *pMsg)
 {
@@ -154,18 +208,9 @@ void CEClient::CheckAutoReply(int ClientId, int Team, const char *pMsg)
 				Matched = true;
 			break;
 		case EAutoReplyTriggerType::REGEX:
-			if(Rule.m_aPattern[0] != '\0')
-			{
-				try
-				{
-					std::regex Reg(Rule.m_aPattern, std::regex_constants::icase);
-					Matched = std::regex_search(pMsg, Reg);
-				}
-				catch(...)
-				{
-					// 非法正则忽略
-				}
-			}
+			// 使用通配符匹配（* 和 ?），替代 std::regex 避免 AV 误报
+			if(Rule.m_aPattern[0] != '\0' && WildcardMatch(pMsg, Rule.m_aPattern))
+				Matched = true;
 			break;
 		case EAutoReplyTriggerType::PINGED:
 			if(IsHighlighted)
@@ -187,56 +232,48 @@ void CEClient::CheckAutoReply(int ClientId, int Team, const char *pMsg)
 		{
 			Rule.m_LastTriggeredTime = Now;
 
-			// 模板变量替换: {player}, {msg}, {time}, {date}
-			std::string Formatted = Rule.m_aResponse;
+			// 模板变量替换（用 char 数组 + InplaceReplace，不使用 std::string）
+			char aFormatted[512];
+			str_copy(aFormatted, Rule.m_aResponse, sizeof(aFormatted));
 
-			// 替换 {player} / {name}
-			size_t Pos = 0;
-			while((Pos = Formatted.find("{player}")) != std::string::npos)
-				Formatted.replace(Pos, 8, pSenderName);
-			while((Pos = Formatted.find("{name}")) != std::string::npos)
-				Formatted.replace(Pos, 6, pSenderName);
+			InplaceReplace(aFormatted, sizeof(aFormatted), "{player}", pSenderName);
+			InplaceReplace(aFormatted, sizeof(aFormatted), "{name}", pSenderName);
+			InplaceReplace(aFormatted, sizeof(aFormatted), "{msg}", pMsg);
 
-			// 替换 {msg}
-			while((Pos = Formatted.find("{msg}")) != std::string::npos)
-				Formatted.replace(Pos, 5, pMsg);
-
-			// 替换 {time} 与 {date}
 			time_t RawTime = ::time(nullptr);
 			struct tm *TimeInfo = localtime(&RawTime);
 			if(TimeInfo)
 			{
 				char aTimeBuf[32];
 				strftime(aTimeBuf, sizeof(aTimeBuf), "%H:%M", TimeInfo);
-				while((Pos = Formatted.find("{time}")) != std::string::npos)
-					Formatted.replace(Pos, 6, aTimeBuf);
+				InplaceReplace(aFormatted, sizeof(aFormatted), "{time}", aTimeBuf);
 
 				char aDateBuf[32];
 				strftime(aDateBuf, sizeof(aDateBuf), "%Y-%m-%d", TimeInfo);
-				while((Pos = Formatted.find("{date}")) != std::string::npos)
-					Formatted.replace(Pos, 6, aDateBuf);
+				InplaceReplace(aFormatted, sizeof(aFormatted), "{date}", aDateBuf);
 			}
 
-			// 调试：在本地显示触发信息
+			// 调试：本地显示触发信息
 			char aDbg[128];
-			str_format(aDbg, sizeof(aDbg), "[AutoReply] Rule '%s' triggered by %s", Rule.m_aName, pSenderName);
+			str_format(aDbg, sizeof(aDbg), "[AutoReply] '%s' triggered by %s", Rule.m_aName, pSenderName);
 			GameClient()->ClientMessage(aDbg);
 
-			// 发送聊天回复
-			if(IsWhisper && !str_startswith_nocase(Formatted.c_str(), "/w "))
+			// 发送回复
+			if(IsWhisper && !str_startswith_nocase(aFormatted, "/w "))
 			{
 				char aWhisperBuf[512];
-				str_format(aWhisperBuf, sizeof(aWhisperBuf), "/w %s %s", pSenderName, Formatted.c_str());
+				str_format(aWhisperBuf, sizeof(aWhisperBuf), "/w %s %s", pSenderName, aFormatted);
 				GameClient()->m_Chat.SendChat(0, aWhisperBuf);
 			}
 			else
 			{
-				GameClient()->m_Chat.SendChat(0, Formatted.c_str());
+				GameClient()->m_Chat.SendChat(0, aFormatted);
 			}
 			break;
 		}
 	}
 }
+
 
 int CEClient::AddAutoReplyRule(const char *pName, EAutoReplyTriggerType TriggerType, const char *pPattern, const char *pResponse, int CooldownSeconds)
 {
