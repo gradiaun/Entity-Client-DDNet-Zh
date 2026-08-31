@@ -77,7 +77,7 @@ static void InplaceReplace(char *pBuf, int BufSize, const char *pFind, const cha
 	{
 		if(str_startswith(pRead, pFind))
 		{
-			int Take = minimum(ReplaceLen, Remaining);
+			int Take = ReplaceLen < Remaining ? ReplaceLen : Remaining;
 			mem_copy(pWrite, pReplace, Take);
 			pWrite += Take;
 			Remaining -= Take;
